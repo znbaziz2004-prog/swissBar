@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 600" role="img" aria-label="Barber shop with chair, mirror, scissors and comb">
+  <style>
+    .float{animation:float 5s ease-in-out infinite}
+    .stripes{animation:pole 1.6s linear infinite}
+    .bladeA{transform-origin:0 0;animation:snipA 2.4s ease-in-out infinite}
+    .bladeB{transform-origin:0 0;animation:snipB 2.4s ease-in-out infinite}
+    .glare{animation:glare 4s ease-in-out infinite}
+    .spark{transform-box:fill-box;transform-origin:center;animation:twinkle 2.6s ease-in-out infinite}
+    .spark.s2{animation-delay:1.2s}
+    .ring{transform-box:fill-box;transform-origin:center;animation:spin 60s linear infinite}
+    .comb{transform-box:fill-box;transform-origin:center;animation:wiggle 5s ease-in-out infinite}
+    @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+    @keyframes pole{to{transform:translateY(40px)}}
+    @keyframes snipA{0%,100%{transform:rotate(0)}45%,55%{transform:rotate(-9deg)}}
+    @keyframes snipB{0%,100%{transform:rotate(0)}45%,55%{transform:rotate(9deg)}}
+    @keyframes glare{0%,100%{opacity:.15;transform:translateX(-10px)}50%{opacity:.5;transform:translateX(10px)}}
+    @keyframes twinkle{0%,100%{opacity:.25;transform:scale(.6)}50%{opacity:1;transform:scale(1.15)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes wiggle{0%,100%{transform:rotate(0)}50%{transform:rotate(-5deg)}}
+    @media (prefers-reduced-motion:reduce){*{animation:none!important}}
+  </style>
+  <defs>
+    <radialGradient id="glow" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="#d9a21b" stop-opacity=".32"/><stop offset=".7" stop-color="#d9a21b" stop-opacity=".08"/><stop offset="1" stop-color="#d9a21b" stop-opacity="0"/></radialGradient>
+    <linearGradient id="glass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a3c22"/><stop offset="1" stop-color="#17130c"/></linearGradient>
+    <linearGradient id="tube" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity=".0"/><stop offset=".3" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#000" stop-opacity=".25"/></linearGradient>
+    <clipPath id="pole"><rect x="62" y="240" width="52" height="250" rx="12"/></clipPath>
+  </defs>
+  <circle cx="300" cy="300" r="290" fill="url(#glow)"/>
+  <circle class="ring" cx="300" cy="300" r="250" fill="none" stroke="#d9a21b" stroke-opacity=".55" stroke-width="3" stroke-dasharray="3 12" stroke-linecap="round"/>
+  <g class="float">
+    <!-- mirror -->
+    <ellipse cx="300" cy="225" rx="128" ry="168" fill="#d9a21b"/>
+    <ellipse cx="300" cy="225" rx="116" ry="156" fill="#0f0d09"/>
+    <ellipse cx="300" cy="225" rx="106" ry="146" fill="url(#glass)"/>
+    <path class="glare" d="M236 150 Q262 110 300 100" stroke="#fff" stroke-width="14" stroke-linecap="round" fill="none"/>
+    <!-- barber pole -->
+    <rect x="54" y="224" width="68" height="18" rx="8" fill="#2b261d" stroke="#d9a21b" stroke-width="2"/>
+    <rect x="54" y="488" width="68" height="18" rx="8" fill="#2b261d" stroke="#d9a21b" stroke-width="2"/>
+    <rect x="62" y="240" width="52" height="250" rx="12" fill="#f7f1e3"/>
+    <g clip-path="url(#pole)"><g class="stripes" stroke-width="16"><path d="M30 130l100 58M30 170l100 58M30 210l100 58M30 250l100 58M30 290l100 58M30 330l100 58M30 370l100 58M30 410l100 58M30 450l100 58M30 490l100 58" stroke="#111"/><path d="M30 150l100 58M30 190l100 58M30 230l100 58M30 270l100 58M30 310l100 58M30 350l100 58M30 390l100 58M30 430l100 58M30 470l100 58M30 510l100 58" stroke="#d9a21b"/></g><rect x="62" y="240" width="52" height="250" fill="url(#tube)"/></g>
+    <circle cx="88" cy="212" r="10" fill="#d9a21b"/>
+    <!-- chair -->
+    <rect x="262" y="330" width="76" height="40" rx="18" fill="#2b261d" stroke="#d9a21b" stroke-width="2"/>
+    <rect x="244" y="362" width="112" height="150" rx="32" fill="#2b261d" stroke="#d9a21b" stroke-width="2"/>
+    <path d="M262 392h76M262 424h76M262 456h76" stroke="#d9a21b" stroke-width="3" stroke-dasharray="6 8" stroke-linecap="round"/>
+    <rect x="204" y="440" width="32" height="86" rx="14" fill="#2b261d" stroke="#d9a21b" stroke-width="2"/>
+    <rect x="364" y="440" width="32" height="86" rx="14" fill="#2b261d" stroke="#d9a21b" stroke-width="2"/>
+    <rect x="222" y="500" width="156" height="46" rx="22" fill="#2b261d" stroke="#d9a21b" stroke-width="2"/>
+    <rect x="290" y="544" width="20" height="26" fill="#9a8f78"/>
+    <ellipse cx="300" cy="574" rx="84" ry="14" fill="#3a342a" stroke="#d9a21b" stroke-width="2"/>
+    <rect x="318" y="552" width="70" height="12" rx="6" fill="#d9a21b" transform="rotate(-18 318 558)"/>
+    <!-- scissors -->
+    <g transform="translate(486 372) rotate(8)">
+      <g class="bladeA"><g transform="rotate(16)"><path d="M-9 0L0-170 9 0Z" fill="#efe7d3"/><path d="M0 0v70" stroke="#efe7d3" stroke-width="10" stroke-linecap="round"/><circle cx="0" cy="100" r="30" fill="none" stroke="#d9a21b" stroke-width="13"/></g></g>
+      <g class="bladeB"><g transform="rotate(-16)"><path d="M-9 0L0-170 9 0Z" fill="#b9b19c"/><path d="M0 0v70" stroke="#b9b19c" stroke-width="10" stroke-linecap="round"/><circle cx="0" cy="100" r="30" fill="none" stroke="#d9a21b" stroke-width="13"/></g></g>
+      <circle r="9" fill="#d9a21b" stroke="#111" stroke-width="3"/>
+    </g>
+    <!-- comb -->
+    <g class="comb"><g transform="rotate(-12 470 548)"><rect x="392" y="530" width="156" height="26" rx="12" fill="#d9a21b"/><path d="M404 556v26M418 556v26M432 556v26M446 556v26M460 556v26M474 556v26M488 556v26M502 556v26M516 556v26M530 556v26" stroke="#d9a21b" stroke-width="5" stroke-linecap="round"/></g></g>
+  </g>
+  <path class="spark" d="M170 150l6 16 16 6-16 6-6 16-6-16-16-6 16-6z" fill="#f0c24b"/>
+  <path class="spark s2" d="M520 150l4 11 11 4-11 4-4 11-4-11-11-4 11-4z" fill="#fff"/>
+  <path class="spark s2" d="M95 120l3 8 8 3-8 3-3 8-3-8-8-3 8-3z" fill="#d9a21b"/>
+</svg>

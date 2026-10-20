@@ -1,0 +1,47 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Handle X-XSRF-Token Header
+    RewriteCond %{HTTP:x-xsrf-token} .
+    RewriteRule .* - [E=HTTP_X_XSRF_TOKEN:%{HTTP:X-XSRF-Token}]
+
+    # 1. Let cPanel Passenger / Node.js handle /api directly without rewriting
+    RewriteCond %{REQUEST_URI} ^/api [NC]
+    RewriteRule ^ - [L]
+
+    # 2. Admin Panel SPA Routing
+    RewriteCond %{REQUEST_URI} ^/admin [NC]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^admin(/.*)?$ admin/index.html [L]
+
+    # 3. Customer Panel SPA Routing
+    RewriteCond %{REQUEST_URI} ^/customer [NC]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^customer(/.*)?$ customer/index.html [L]
+
+    # 4. Barber Panel SPA Routing
+    RewriteCond %{REQUEST_URI} ^/barber [NC]
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^barber(/.*)?$ barber/index.html [L]
+
+    # 4. Redirect Trailing Slashes If Not A Folder...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_URI} (.+)/$
+    RewriteRule ^ %1 [L,R=301]
+
+    # 5. Send All Other Requests To Laravel Front Controller...
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteRule ^ index.php [L]
+</IfModule>
