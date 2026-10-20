@@ -1,0 +1,39 @@
+<IfModule mod_rewrite.c>
+    <IfModule mod_negotiation.c>
+        Options -MultiViews -Indexes
+    </IfModule>
+
+    RewriteEngine On
+
+    # 1. Protect sensitive backend code, env files, and directories from direct HTTP access
+    RewriteRule ^(\.env|\.git|backend|database|panels|website|storage|vendor) - [F,L,NC]
+
+    # 2. Let cPanel Passenger / Node.js handle /api directly without rewriting
+    RewriteCond %{REQUEST_URI} ^/api [NC]
+    RewriteRule ^ - [L]
+
+    # 3. Serve physical files/directories from the public directory directly
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteCond %{DOCUMENT_ROOT}/public/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/public/$1 -d
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # 4. Admin Panel SPA Routing: Rewrite /admin/* to public/admin/index.html
+    RewriteCond %{REQUEST_URI} ^/admin [NC]
+    RewriteCond %{DOCUMENT_ROOT}/public/admin/index.html -f
+    RewriteRule ^admin(/.*)?$ public/admin/index.html [L]
+
+    # 5. Customer Panel SPA Routing: Rewrite /customer/* to public/customer/index.html
+    RewriteCond %{REQUEST_URI} ^/customer [NC]
+    RewriteCond %{DOCUMENT_ROOT}/public/customer/index.html -f
+    RewriteRule ^customer(/.*)?$ public/customer/index.html [L]
+
+    # 6. Barber Panel SPA Routing: Rewrite /barber/* to public/barber/index.html
+    RewriteCond %{REQUEST_URI} ^/barber [NC]
+    RewriteCond %{DOCUMENT_ROOT}/public/barber/index.html -f
+    RewriteRule ^barber(/.*)?$ public/barber/index.html [L]
+
+    # 6. Route all remaining website traffic through Laravel front controller
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/index.php [L]
+</IfModule>

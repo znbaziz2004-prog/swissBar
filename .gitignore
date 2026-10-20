@@ -1,0 +1,8 @@
+node_modules/
+vendor/
+dist/
+.env
+website/public/build/
+website/public/hot
+website/storage/framework/chrome-profile-*/
+website/storage/logs/*.log
