@@ -126,10 +126,10 @@
             }
         }
             body { font-family: "Plus Jakarta Sans", Arial, sans-serif !important; }
-        .header { border-bottom: 6px solid #d9a21b; }
-        .plan { border-radius: 24px !important; border: 1px solid #e3d6bc; border-top: 5px solid #d9a21b; background:#fff; box-shadow: 0 18px 44px rgba(17,17,17,.10); transition: transform .2s; }
+        .header { border-bottom: 6px solid #f5b800; }
+        .plan { border-radius: 24px !important; border: 1px solid #e3d6bc; border-top: 5px solid #f5b800; background:#fff; box-shadow: 0 18px 44px rgba(17,17,17,.10); transition: transform .2s; }
         .plan:hover { transform: translateY(-4px); }
-        .select-button { border-radius: 999px !important; background:#d9a21b !important; color:#111 !important; font-weight:700; }
+        .select-button { border-radius: 999px !important; background:#f5b800 !important; color:#111 !important; font-weight:700; }
         .select-button:hover:not(:disabled) { background:#111 !important; color:#fff !important; }
         .select-button:disabled { opacity:.55; }
     </style>

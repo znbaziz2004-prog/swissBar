@@ -30,8 +30,8 @@
         }
 
         .swiss-auth-page {
-            --swiss-red: #d9a21b;
-            --swiss-red-dark: #b9870d;
+            --swiss-red: #f5b800;
+            --swiss-red-dark: #c99700;
             --swiss-black: #151515;
             --swiss-text: #202020;
             --swiss-muted: #707070;
@@ -1364,18 +1364,18 @@
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-brand-mark {
-            background: #d9a21b !important;
+            background: #f5b800 !important;
             box-shadow: 0 7px 20px rgba(217, 162, 27, 0.18) !important;
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-top-action a,
         .swiss-auth-page.swiss-register-page .swiss-auth-inline-link {
-            color: #d9a21b !important;
+            color: #f5b800 !important;
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-top-action a:hover,
         .swiss-auth-page.swiss-register-page .swiss-auth-inline-link:hover {
-            color: #b9870d !important;
+            color: #c99700 !important;
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-card-heading h2 {
@@ -1392,40 +1392,40 @@
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-price-value {
-            color: #d9a21b !important;
+            color: #f5b800 !important;
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-progress-step.is-active
         .swiss-auth-progress-step-number,
         .swiss-auth-page.swiss-register-page .swiss-auth-progress-step.is-complete
         .swiss-auth-progress-step-number {
-            border-color: #d9a21b !important;
-            background: #d9a21b !important;
+            border-color: #f5b800 !important;
+            background: #f5b800 !important;
             color: #FFFFFF !important;
             box-shadow: 0 0 0 4px rgba(217, 162, 27, 0.08) !important;
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-required {
-            color: #d9a21b !important;
+            color: #f5b800 !important;
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-field input:focus,
         .swiss-auth-page.swiss-register-page .swiss-auth-field select:focus,
         .swiss-auth-page.swiss-register-page .swiss-auth-phone-control:focus-within {
-            border-color: #d9a21b !important;
+            border-color: #f5b800 !important;
             box-shadow: 0 0 0 3px rgba(217, 162, 27, 0.08) !important;
         }
 
         .swiss-auth-page.swiss-register-page button.swiss-auth-button:not(.swiss-auth-button--secondary) {
             width: 180px !important;
             min-height: 53px !important;
-            border-color: #d9a21b !important;
-            background: #d9a21b !important;
+            border-color: #f5b800 !important;
+            background: #f5b800 !important;
         }
 
         .swiss-auth-page.swiss-register-page button.swiss-auth-button:not(.swiss-auth-button--secondary):hover {
-            border-color: #b9870d !important;
-            background: #b9870d !important;
+            border-color: #c99700 !important;
+            background: #c99700 !important;
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-package-card {
@@ -1434,7 +1434,7 @@
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-package-card input {
-            accent-color: #d9a21b !important;
+            accent-color: #f5b800 !important;
         }
 
         .swiss-auth-page.swiss-register-page .swiss-auth-button:focus-visible,

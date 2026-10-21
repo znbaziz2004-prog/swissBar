@@ -21,7 +21,7 @@
 
     <meta
         name="theme-color"
-        content="#111111"
+        content="#0a0a0a"
     >
 
     <title>

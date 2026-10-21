@@ -82,3 +82,13 @@
     </a>
 </div>
 </header>
+
+<script>
+(function () {
+    var header = document.querySelector('.kk-header');
+    if (!header) return;
+    var update = function () { header.classList.toggle('is-scrolled', window.scrollY > 12); };
+    update();
+    window.addEventListener('scroll', update, { passive: true });
+})();
+</script>

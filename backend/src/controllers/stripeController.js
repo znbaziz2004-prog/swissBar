@@ -3,6 +3,47 @@ const { pool } = require("../config/db");
 
 /*
 |--------------------------------------------------------------------------
+| Return URL helper
+|--------------------------------------------------------------------------
+| Stripe sends the person back to success_url / cancel_url. The website
+| (Laravel) tells us which site started the checkout via `returnUrl`.
+| Only origins on the allow-list are accepted; anything else falls back to
+| APP_URL. This keeps local testing on localhost and live on the live domain
+| without depending on which .env file was loaded.
+*/
+
+const resolveReturnBase = (returnUrl) => {
+  const fallback = (process.env.APP_URL || "http://127.0.0.1:8000").replace(
+    /\/$/,
+    ""
+  );
+
+  const allowed = [
+    fallback,
+    ...(process.env.ALLOWED_RETURN_ORIGINS || "").split(","),
+    "http://127.0.0.1:8000",
+    "http://localhost:8000",
+  ]
+    .map((origin) => origin.trim().replace(/\/$/, ""))
+    .filter(Boolean);
+
+  try {
+    const origin = new URL(String(returnUrl || "")).origin;
+    return allowed.includes(origin) ? origin : fallback;
+  } catch (error) {
+    return fallback;
+  }
+};
+
+const SUPPORTED_LOCALES = ["en", "de", "fr", "it"];
+
+const resolveStripeLocale = (locale) => {
+  const value = String(locale || "").toLowerCase();
+  return SUPPORTED_LOCALES.includes(value) ? value : "auto";
+};
+
+/*
+|--------------------------------------------------------------------------
 | Subscription Checkout
 |--------------------------------------------------------------------------
 */
@@ -17,15 +58,9 @@ const createCheckoutSession = async (req, res) => {
       });
     }
 
-    const { subscriptionId, locale } = req.body;
+    const { subscriptionId, locale, returnUrl } = req.body;
 
-const supportedLocales = ["en", "de", "fr", "it"];
-
-const stripeLocale = supportedLocales.includes(
-  String(locale || "").toLowerCase()
-)
-  ? String(locale).toLowerCase()
-  : "auto";
+    const stripeLocale = resolveStripeLocale(locale);
 
     if (!subscriptionId) {
       return res.status(400).json({
@@ -64,35 +99,36 @@ const stripeLocale = supportedLocales.includes(
     }
 
     const subscription = subscriptions[0];
+
     // Verify that the logged-in user owns this shop
-if (req.user?.role !== "super_admin") {
-  const [ownedShops] = await pool.query(
-    `SELECT id
-     FROM barber_shops
-     WHERE id = ?
-       AND owner_id = ?
-     LIMIT 1`,
-    [subscription.shop_id, req.user?.id]
-  );
+    if (req.user?.role !== "super_admin") {
+      const [ownedShops] = await pool.query(
+        `SELECT id
+         FROM barber_shops
+         WHERE id = ?
+           AND owner_id = ?
+         LIMIT 1`,
+        [subscription.shop_id, req.user?.id]
+      );
 
-  if (ownedShops.length === 0) {
-    return res.status(403).json({
-      success: false,
-      message: "You do not have access to this subscription.",
-    });
-  }
-}
+      if (ownedShops.length === 0) {
+        return res.status(403).json({
+          success: false,
+          message: "You do not have access to this subscription.",
+        });
+      }
+    }
 
-// Only pending subscriptions can start checkout
-if (subscription.status !== "pending") {
-  return res.status(409).json({
-    success: false,
-    message: "This subscription is not pending payment.",
-    data: {
-      subscriptionStatus: subscription.status,
-    },
-  });
-}
+    // Only pending subscriptions can start checkout
+    if (subscription.status !== "pending") {
+      return res.status(409).json({
+        success: false,
+        message: "This subscription is not pending payment.",
+        data: {
+          subscriptionStatus: subscription.status,
+        },
+      });
+    }
 
     const amount = Number(subscription.monthly_price);
 
@@ -107,12 +143,12 @@ if (subscription.status !== "pending") {
       subscription.currency || "CHF"
     ).toLowerCase();
 
+    const appBase = resolveReturnBase(returnUrl);
+    console.log("Stripe return URL base:", appBase);
+
     const session = await stripe.checkout.sessions.create({
-      
       mode: "payment",
       locale: stripeLocale,
-      
-
 
       line_items: [
         {
@@ -128,10 +164,14 @@ if (subscription.status !== "pending") {
         },
       ],
 
-      success_url: `${(process.env.APP_URL || "http://127.0.0.1:8000").replace(/\/$/, "")}/subscription/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
-cancel_url: `${(process.env.APP_URL || "http://localhost:8000").replace(/\/$/, "")}/subscription/payment?cancelled=true`,
+      success_url: `${appBase}/subscription/payment?success=true&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${appBase}/subscription/payment?cancelled=true`,
+
       metadata: {
         paymentType: "subscription",
+        registrationPayment: String(
+          req.user?.purpose === "registration_payment"
+        ),
         subscriptionId: String(subscription.id),
         shopId: String(subscription.shop_id),
         planId: String(subscription.plan_id),
@@ -177,7 +217,10 @@ const createAppointmentCheckoutSession = async (req, res) => {
       });
     }
 
-    const { appointmentId } = req.body;
+    const { appointmentId, locale } = req.body;
+
+    // Bug fix: stripeLocale was used below but never defined in this function.
+    const stripeLocale = resolveStripeLocale(locale);
 
     if (!appointmentId) {
       return res.status(400).json({
@@ -308,7 +351,6 @@ const createAppointmentCheckoutSession = async (req, res) => {
     */
 
     const session = await stripe.checkout.sessions.create({
-      
       mode: "payment",
       locale: stripeLocale,
 
@@ -333,7 +375,6 @@ const createAppointmentCheckoutSession = async (req, res) => {
           quantity: 1,
         },
       ],
-      
 
       success_url:
         `${(process.env.ADMIN_PANEL_URL || process.env.APP_URL || "http://localhost:5173").replace(/\/$/, "")}/admin/payments?success=true&session_id={CHECKOUT_SESSION_ID}`,
@@ -405,6 +446,7 @@ const createAppointmentCheckoutSession = async (req, res) => {
     });
   }
 };
+
 // Reconcile an existing successful Stripe subscription payment
 const reconcileSubscriptionPayment = async (req, res) => {
   try {
@@ -417,10 +459,14 @@ const reconcileSubscriptionPayment = async (req, res) => {
 
     const { sessionId } = req.body;
 
-    if (!sessionId || !sessionId.startsWith("cs_test_")) {
+    // Accepts both test and live Checkout Session IDs.
+    if (
+      typeof sessionId !== "string" ||
+      !/^cs_(test|live)_[A-Za-z0-9_]+$/.test(sessionId)
+    ) {
       return res.status(400).json({
         success: false,
-        message: "A valid Stripe test Checkout Session ID is required.",
+        message: "A valid Stripe Checkout Session ID is required.",
       });
     }
 
@@ -479,37 +525,36 @@ const reconcileSubscriptionPayment = async (req, res) => {
     }
 
     const subscription = rows[0];
+
     // Verify Stripe metadata matches the database subscription
-if (
-  Number(session.metadata.shopId) !== Number(subscription.shop_id) ||
-  Number(session.metadata.planId) !== Number(subscription.plan_id)
-) {
-  return res.status(400).json({
-    success: false,
-    message: "Stripe session does not match this subscription.",
-  });
-}
+    if (
+      Number(session.metadata.shopId) !== Number(subscription.shop_id) ||
+      Number(session.metadata.planId) !== Number(subscription.plan_id)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Stripe session does not match this subscription.",
+      });
+    }
 
-// Verify the logged-in user owns this shop
-if (req.user?.role !== "super_admin") {
-  const [ownedShops] = await pool.query(
-    `SELECT id
-     FROM barber_shops
-     WHERE id = ?
-       AND owner_id = ?
-     LIMIT 1`,
-    [subscription.shop_id, req.user?.id]
-  );
+    // Verify the logged-in user owns this shop
+    if (req.user?.role !== "super_admin") {
+      const [ownedShops] = await pool.query(
+        `SELECT id
+         FROM barber_shops
+         WHERE id = ?
+           AND owner_id = ?
+         LIMIT 1`,
+        [subscription.shop_id, req.user?.id]
+      );
 
-  if (ownedShops.length === 0) {
-    return res.status(403).json({
-      success: false,
-      message: "You do not have access to this subscription payment.",
-    });
-  }
-}
-
-// Verify payment amount and currency
+      if (ownedShops.length === 0) {
+        return res.status(403).json({
+          success: false,
+          message: "You do not have access to this subscription payment.",
+        });
+      }
+    }
 
     // Verify payment amount and currency
     const expectedAmount = Math.round(
@@ -611,6 +656,7 @@ if (req.user?.role !== "super_admin") {
     });
   }
 };
+
 const reconcileRegistrationPayment = async (req, res) => {
   try {
     if (!stripe) {
@@ -621,32 +667,18 @@ const reconcileRegistrationPayment = async (req, res) => {
     }
 
     const { sessionId } = req.body;
-    const user = req.user;
-
-    if (
-      !user ||
-      user.role !== "owner" ||
-      user.purpose !== "registration_payment" ||
-      !user.id ||
-      !user.shopId ||
-      !user.subscriptionId
-    ) {
-      return res.status(403).json({
-        success: false,
-        message: "Valid registration payment token required.",
-      });
-    }
 
     if (
       typeof sessionId !== "string" ||
-      !sessionId.startsWith("cs_test_")
+      !/^cs_(test|live)_[A-Za-z0-9_]+$/.test(sessionId)
     ) {
       return res.status(400).json({
         success: false,
-        message: "Invalid Stripe test session ID.",
+        message: "Invalid Stripe session ID.",
       });
     }
 
+    // Always verify the Checkout Session directly with Stripe.
     const session =
       await stripe.checkout.sessions.retrieve(sessionId);
 
@@ -660,17 +692,27 @@ const reconcileRegistrationPayment = async (req, res) => {
       });
     }
 
-    const subscriptionId = Number(user.subscriptionId);
-    const shopId = Number(user.shopId);
-
+    // Only accept sessions explicitly created for registration.
     if (
       session.metadata?.paymentType !== "subscription" ||
-      Number(session.metadata.subscriptionId) !== subscriptionId ||
-      Number(session.metadata.shopId) !== shopId
+      session.metadata?.registrationPayment !== "true"
     ) {
+      return res.status(403).json({
+        success: false,
+        message: "This is not a registration payment.",
+      });
+    }
+
+    const subscriptionId = Number(
+      session.metadata.subscriptionId
+    );
+    const shopId = Number(session.metadata.shopId);
+    const planId = Number(session.metadata.planId);
+
+    if (!subscriptionId || !shopId || !planId) {
       return res.status(400).json({
         success: false,
-        message: "Stripe session does not match this registration.",
+        message: "Required payment metadata is missing.",
       });
     }
 
@@ -679,6 +721,7 @@ const reconcileRegistrationPayment = async (req, res) => {
          ss.id,
          ss.shop_id,
          ss.plan_id,
+         ss.status,
          sp.monthly_price,
          sp.currency
        FROM shop_subscriptions ss
@@ -686,9 +729,10 @@ const reconcileRegistrationPayment = async (req, res) => {
        JOIN barber_shops bs ON bs.id = ss.shop_id
        WHERE ss.id = ?
          AND ss.shop_id = ?
-         AND bs.owner_id = ?
+         AND ss.plan_id = ?
+         AND bs.owner_id IS NOT NULL
        LIMIT 1`,
-      [subscriptionId, shopId, Number(user.id)]
+      [subscriptionId, shopId, planId]
     );
 
     if (!rows.length) {
@@ -700,11 +744,17 @@ const reconcileRegistrationPayment = async (req, res) => {
 
     const subscription = rows[0];
 
+    const expectedAmount = Math.round(
+      Number(subscription.monthly_price) * 100
+    );
+
+    const expectedCurrency = String(
+      subscription.currency || "CHF"
+    ).toLowerCase();
+
     if (
-      session.amount_total !==
-        Math.round(Number(subscription.monthly_price) * 100) ||
-      session.currency !==
-        String(subscription.currency || "CHF").toLowerCase()
+      session.amount_total !== expectedAmount ||
+      session.currency !== expectedCurrency
     ) {
       return res.status(400).json({
         success: false,
@@ -773,7 +823,7 @@ const reconcileRegistrationPayment = async (req, res) => {
 
       await connection.commit();
 
-      return res.json({
+      return res.status(200).json({
         success: true,
         message: "Registration payment verified.",
         data: {

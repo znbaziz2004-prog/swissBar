@@ -51,8 +51,8 @@ const getFeaturedShops = async (req, res) => {
         AND JSON_EXTRACT(plan.features, '$.homepage_featured') = true
 
       ORDER BY
-        bs.featured_priority DESC,
-        bs.created_at DESC
+        bs.featured_priority ASC,
+        bs.created_at ASC
       `
     );
 
@@ -219,7 +219,7 @@ const getPublicShops = async (req, res) => {
           ELSE 0
         END DESC,
 
-        bs.featured_priority DESC,
+        bs.featured_priority ASC,
         bs.name ASC
 
       LIMIT ? OFFSET ?

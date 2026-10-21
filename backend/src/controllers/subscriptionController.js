@@ -266,6 +266,7 @@ const updateSubscriptionStatus = async (req, res) => {
     });
   }
 };
+
 // =====================================================
 // OWNER — GET MY SUBSCRIPTION
 // =====================================================
@@ -294,6 +295,17 @@ const getMySubscription = async (req, res) => {
         ss.auto_renew,
         ss.created_at,
         bs.name AS shop_name,
+        bs.status AS shop_status,
+        COALESCE(
+          (
+            SELECT br.registration_status
+            FROM barber_registrations br
+            WHERE br.shop_id = ss.shop_id
+            ORDER BY br.id DESC
+            LIMIT 1
+          ),
+          'pending'
+        ) AS approvalStatus,
         sp.name AS plan_name,
         sp.monthly_price AS price,
         sp.currency,

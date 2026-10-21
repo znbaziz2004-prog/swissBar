@@ -1,5 +1,5 @@
-import React from "react";
-import { useEffect, useState } from "react";
+
+import React, { useEffect, useState } from "react";
 import {
   getMyTestimonial,
   submitTestimonial,
@@ -11,6 +11,7 @@ export default function Testimonials() {
   const [myTestimonial, setMyTestimonial] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [editing, setEditing] = useState(false);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
@@ -26,6 +27,7 @@ export default function Testimonials() {
       setTestimonial(
         data?.status === "rejected" ? data.testimonial : ""
       );
+      setEditing(false);
     } catch (err) {
       setError(errMsg(err));
     } finally {
@@ -36,6 +38,19 @@ export default function Testimonials() {
   useEffect(() => {
     loadTestimonial();
   }, []);
+
+  const handleEdit = () => {
+    setTestimonial(myTestimonial?.testimonial || "");
+    setEditing(true);
+    setError("");
+    setMessage("");
+  };
+
+  const handleCancel = () => {
+    setTestimonial("");
+    setEditing(false);
+    setError("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -59,7 +74,10 @@ export default function Testimonials() {
 
       await submitTestimonial(text);
 
-      setMessage("Your testimonial has been submitted for Super Admin approval.");
+      setMessage(
+        "Your testimonial has been submitted for Super Admin approval."
+      );
+
       await loadTestimonial();
     } catch (err) {
       setError(errMsg(err));
@@ -95,28 +113,25 @@ export default function Testimonials() {
         </div>
       )}
 
-      {myTestimonial?.status === "pending" && (
+      {myTestimonial && !editing && (
         <div className="card" style={{ marginBottom: 16 }}>
-          <h3>Testimonial Pending</h3>
-          <p>Your testimonial is waiting for Super Admin approval.</p>
-          <blockquote>{myTestimonial.testimonial}</blockquote>
-        </div>
-      )}
+          <h3>
+            {myTestimonial.status === "pending"
+              ? "Testimonial Pending"
+              : myTestimonial.status === "approved"
+                ? "Testimonial Approved"
+                : "Testimonial Rejected"}
+          </h3>
 
-      {myTestimonial?.status === "approved" && (
-        <div className="card" style={{ marginBottom: 16 }}>
-          <h3>Testimonial Approved</h3>
-          <p>Your testimonial has been approved for possible display on the website.</p>
-          <blockquote>{myTestimonial.testimonial}</blockquote>
-        </div>
-      )}
-
-      {myTestimonial?.status === "rejected" && (
-        <div className="card" style={{ marginBottom: 16 }}>
-          <h3>Testimonial Rejected</h3>
           <p>
-            You can revise your testimonial and submit it again.
+            {myTestimonial.status === "pending"
+              ? "Your testimonial is waiting for Super Admin approval."
+              : myTestimonial.status === "approved"
+                ? "Your testimonial has been approved for possible display on the website."
+                : "You can revise your testimonial and submit it again."}
           </p>
+
+          <blockquote>{myTestimonial.testimonial}</blockquote>
 
           {myTestimonial.admin_feedback && (
             <p>
@@ -124,12 +139,24 @@ export default function Testimonials() {
               {myTestimonial.admin_feedback}
             </p>
           )}
+
+          {myTestimonial.status !== "pending" && (
+            <button type="button" className="btn" onClick={handleEdit}>
+              {myTestimonial.status === "approved"
+                ? "Edit Testimonial"
+                : "Revise Testimonial"}
+            </button>
+          )}
         </div>
       )}
 
-      {!myTestimonial || myTestimonial.status === "rejected" ? (
+      {(!myTestimonial ||
+        myTestimonial.status === "rejected" ||
+        editing) && (
         <form className="card" onSubmit={handleSubmit}>
-          <h2>Share Your Experience</h2>
+          <h2>
+            {editing ? "Edit Your Testimonial" : "Share Your Experience"}
+          </h2>
 
           <label
             htmlFor="platform-testimonial"
@@ -155,19 +182,34 @@ export default function Testimonials() {
             }}
           />
 
-          <p className="muted">
-            {testimonial.length}/2000 characters
-          </p>
+          <p className="muted">{testimonial.length}/2000 characters</p>
 
-          <button
-            type="submit"
-            className="btn"
-            disabled={submitting}
-          >
-            {submitting ? "Submitting..." : "Submit for Approval"}
-          </button>
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button
+              type="submit"
+              className="btn"
+              disabled={submitting}
+            >
+              {submitting
+                ? "Submitting..."
+                : editing
+                  ? "Update & Resubmit"
+                  : "Submit for Approval"}
+            </button>
+
+            {editing && (
+              <button
+                type="button"
+                className="btn"
+                onClick={handleCancel}
+                disabled={submitting}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </form>
-      ) : null}
+      )}
     </div>
   );
 }

@@ -64,12 +64,18 @@ export const getShop = async (id) => {
 export const updateShopStatus = async (id, status) =>
   unwrap(await api.patch(`/shops/${id}/status`, { status }))
 
-export const toggleShopFeatured = async (id, isFeatured) =>
+
+export const toggleShopFeatured = async (id, isFeatured, featuredPriority = null) =>
   unwrap(
     await api.patch(`/admin/owners/shops/${id}/featured`, {
       isFeatured: Boolean(isFeatured),
+      featuredPriority:
+        featuredPriority === '' || featuredPriority == null
+          ? null
+          : Number(featuredPriority),
     }),
   )
+
 
 /* OWNERS */
 export const getOwners = async (params) =>

@@ -766,17 +766,13 @@ const getBarberRegistrationById = async (req, res) => {
   }
 };
 
+
 const updateShopFeaturedStatus = async (req, res) => {
   const connection = await pool.getConnection();
 
   try {
     const shopId = req.params.id;
-
-    const {
-      isFeatured,
-      featuredUntil,
-      featuredPriority,
-    } = req.body;
+    const { isFeatured, featuredUntil, featuredPriority } = req.body;
 
     if (typeof isFeatured !== "boolean") {
       return res.status(400).json({
@@ -795,15 +791,12 @@ const updateShopFeaturedStatus = async (req, res) => {
         plan.name AS plan_name,
         plan.features
       FROM barber_shops bs
-
       LEFT JOIN shop_subscriptions sp
         ON sp.shop_id = bs.id
         AND sp.status = 'active'
-
       LEFT JOIN subscription_plans plan
         ON plan.id = sp.plan_id
         AND plan.status = 'active'
-
       WHERE bs.id = ?
       LIMIT 1
       `,
@@ -853,16 +846,45 @@ const updateShopFeaturedStatus = async (req, res) => {
       }
     }
 
-    const priority =
-      featuredPriority !== undefined
-        ? Number(featuredPriority)
-        : 0;
+    // Blank position means the shop appears after numbered shops.
+    const positionIsBlank =
+      featuredPriority === undefined ||
+      featuredPriority === null ||
+      String(featuredPriority).trim() === "";
 
-    if (!Number.isInteger(priority) || priority < 0) {
+    const priority = positionIsBlank ? 0 : Number(featuredPriority);
+
+    if (
+      isFeatured &&
+      !positionIsBlank &&
+      (!Number.isInteger(priority) || priority < 1)
+    ) {
       return res.status(400).json({
         success: false,
-        message: "featuredPriority must be a non-negative integer",
+        message: "Position must be a positive whole number, such as 1, 2, or 3.",
       });
+    }
+
+    // Prevent two featured shops from using the same position.
+    if (isFeatured && priority > 0) {
+      const [existingShops] = await connection.query(
+        `
+        SELECT id, name
+        FROM barber_shops
+        WHERE is_featured = 1
+          AND featured_priority = ?
+          AND id <> ?
+        LIMIT 1
+        `,
+        [priority, shopId]
+      );
+
+      if (existingShops.length > 0) {
+        return res.status(409).json({
+          success: false,
+          message: `Position ${priority} is already used by ${existingShops[0].name}. Please choose another position.`,
+        });
+      }
     }
 
     await connection.query(
@@ -891,7 +913,7 @@ const updateShopFeaturedStatus = async (req, res) => {
         shopId: Number(shopId),
         isFeatured,
         featuredUntil: isFeatured ? featuredUntil || null : null,
-        featuredPriority: isFeatured ? priority : 0,
+        featuredPriority: isFeatured && priority > 0 ? priority : null,
       },
     });
   } catch (error) {
@@ -905,6 +927,7 @@ const updateShopFeaturedStatus = async (req, res) => {
     connection.release();
   }
 };
+
 
 module.exports = {
   getAllOwners,

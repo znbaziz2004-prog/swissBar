@@ -790,47 +790,64 @@ router.patch(
         endTimeResult[0].end_time;
 
       // Check staff working hours
-      const [workingHours] = await pool.execute(
-        `
-        SELECT
-          start_time,
-          end_time
-        FROM working_hours
-        WHERE shop_id = ?
-          AND branch_id = ?
-          AND staff_id = ?
-          AND day_of_week = DAYOFWEEK(?)
-          AND is_available = 1
-        LIMIT 1
-        `,
-        [
-          booking.shop_id,
-          booking.branch_id,
-          booking.staff_id,
-          date,
-        ]
-      );
+      
+const [specificWorkingHours] = await pool.execute(
+  `
+    SELECT start_time, end_time
+    FROM working_hours
+    WHERE shop_id = ?
+      AND branch_id = ?
+      AND staff_id = ?
+      AND day_of_week = DAYOFWEEK(?) - 1
+      AND is_available = 1
+    ORDER BY start_time ASC
+  `,
+  [
+    booking.shop_id,
+    booking.branch_id,
+    booking.staff_id,
+    date,
+  ]
+);
 
-      if (workingHours.length === 0) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Selected date is outside staff working hours",
-        });
-      }
+let workingHours = specificWorkingHours;
 
-      const workingHour = workingHours[0];
+if (workingHours.length === 0) {
+  const [shopWorkingHours] = await pool.execute(
+    `
+      SELECT start_time, end_time
+      FROM working_hours
+      WHERE shop_id = ?
+        AND branch_id IS NULL
+        AND staff_id IS NULL
+        AND day_of_week = DAYOFWEEK(?) - 1
+        AND is_available = 1
+      ORDER BY start_time ASC
+    `,
+    [booking.shop_id, date]
+  );
 
-      if (
-        startTime < workingHour.start_time ||
-        endTime > workingHour.end_time
-      ) {
-        return res.status(400).json({
-          success: false,
-          message:
-            "Selected time is outside staff working hours",
-        });
-      }
+  workingHours = shopWorkingHours;
+}
+
+if (workingHours.length === 0) {
+  return res.status(400).json({
+    success: false,
+    message: "Selected date is outside staff working hours",
+  });
+}
+
+const fitsWorkingHours = workingHours.some((workingHour) => (
+  startTime >= workingHour.start_time &&
+  endTime <= workingHour.end_time
+));
+
+if (!fitsWorkingHours) {
+  return res.status(400).json({
+    success: false,
+    message: "Selected time is outside staff working hours",
+  });
+}
 
       // Check for conflicting appointments
       const [conflicts] = await pool.execute(

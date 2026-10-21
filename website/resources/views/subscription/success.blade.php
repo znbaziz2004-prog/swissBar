@@ -19,7 +19,7 @@
         .success-icon {
             width: 72px; height: 72px; margin: 0 auto 20px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; background: #f3ebdc; color: #b9870d;
+            border-radius: 50%; background: #f3ebdc; color: #c99700;
             font-size: 40px; font-weight: bold;
         }
         h1 { margin: 0 0 10px; font-size: 28px; }
@@ -53,9 +53,9 @@
             .success-card { padding: 32px 20px; }
             h1 { font-size: 24px; }
         }
-            .success-card { border-top: 6px solid #d9a21b; box-shadow: 0 24px 60px rgba(17,17,17,.12); border-radius: 28px; }
+            .success-card { border-top: 6px solid #f5b800; box-shadow: 0 24px 60px rgba(17,17,17,.12); border-radius: 28px; }
         .option { border-radius: 16px; }
-        .option.primary:hover { background: #d9a21b; border-color:#d9a21b; color:#111; }
+        .option.primary:hover { background: #f5b800; border-color:#f5b800; color:#111; }
         .option.primary:hover span { color:#2b2822; }
     </style>
 </head>

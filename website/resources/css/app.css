@@ -2858,7 +2858,7 @@ img {
     padding: 0 !important;
     object-fit: cover !important;
     object-position: center center !important;
-    transform: rotate(90deg) scale(1.35) !important;
+    transform: none !important;
     transform-origin: center center !important;
 }
 

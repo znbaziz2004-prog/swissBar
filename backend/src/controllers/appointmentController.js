@@ -407,66 +407,75 @@ const createAppointment = async (req, res) => {
      * 8. Check working hours
      */
 
-    const [dayRows] =
-      await connection.query(
-        `
-          SELECT DAYOFWEEK(?) - 1 AS day_of_week
-        `,
-        [appointmentDate]
-      );
+    
+    /*
+     * 8. Check working hours
+     */
 
-    const dayOfWeek =
-      Number(dayRows[0].day_of_week);
+    const [dayRows] = await connection.query(
+      `
+        SELECT DAYOFWEEK(?) - 1 AS day_of_week
+      `,
+      [appointmentDate]
+    );
 
-    const [workingHours] =
-      await connection.query(
-        `
-          SELECT
-            start_time,
-            end_time
-          FROM working_hours
-          WHERE shop_id = ?
+    const dayOfWeek = Number(dayRows[0].day_of_week);
+
+    // First check branch/staff-specific working hours.
+    const [specificWorkingHours] = await connection.query(
+      `
+        SELECT start_time, end_time
+        FROM working_hours
+        WHERE shop_id = ?
           AND branch_id = ?
           AND staff_id = ?
           AND day_of_week = ?
           AND is_available = 1
+        ORDER BY start_time ASC
+      `,
+      [shopId, branchId, staffId, dayOfWeek]
+    );
+
+    let workingHours = specificWorkingHours;
+
+    // If no specific hours exist, use general shop hours.
+    if (workingHours.length === 0) {
+      const [shopWorkingHours] = await connection.query(
+        `
+          SELECT start_time, end_time
+          FROM working_hours
+          WHERE shop_id = ?
+            AND branch_id IS NULL
+            AND staff_id IS NULL
+            AND day_of_week = ?
+            AND is_available = 1
           ORDER BY start_time ASC
         `,
-        [
-          shopId,
-          branchId,
-          staffId,
-          dayOfWeek,
-        ]
+        [shopId, dayOfWeek]
       );
 
-    const fitsWorkingHours =
-      workingHours.some((workingHour) => {
-        const workStart =
-          timeToMinutes(
-            workingHour.start_time
-          );
+      workingHours = shopWorkingHours;
+    }
 
-        const workEnd =
-          timeToMinutes(
-            workingHour.end_time
-          );
+    const fitsWorkingHours = workingHours.some((workingHour) => {
+      const workStart = timeToMinutes(workingHour.start_time);
+      const workEnd = timeToMinutes(workingHour.end_time);
 
-        return (
-          startMinute >= workStart &&
-          endMinute <= workEnd
-        );
-      });
+      return (
+        startMinute >= workStart &&
+        endMinute <= workEnd
+      );
+    });
 
     if (!fitsWorkingHours) {
       await connection.rollback();
 
       return res.status(400).json({
         success: false,
-        message:
-          "Selected time is outside staff working hours",
+        message: "Selected time is outside staff working hours",
       });
     }
+
 
     /*
      * 9. Check blocked times
@@ -2133,57 +2142,59 @@ const rescheduleAppointment = async (req, res) => {
         dayRows[0].day_of_week
       );
 
-    const [workingHours] =
-      await connection.query(
-        `
-          SELECT
-            start_time,
-            end_time
-          FROM working_hours
-          WHERE shop_id = ?
-          AND branch_id = ?
-          AND staff_id = ?
-          AND day_of_week = ?
-          AND is_available = 1
-          ORDER BY start_time ASC
-        `,
-        [
-          appointment.shop_id,
-          appointment.branch_id,
-          appointment.staff_id,
-          dayOfWeek,
-        ]
-      );
+   
+const [specificWorkingHours] = await connection.query(
+  `
+    SELECT start_time, end_time
+    FROM working_hours
+    WHERE shop_id = ?
+      AND branch_id = ?
+      AND staff_id = ?
+      AND day_of_week = ?
+      AND is_available = 1
+    ORDER BY start_time ASC
+  `,
+  [shopId, branchId, staffId, dayOfWeek]
+);
 
-    const fitsWorkingHours =
-      workingHours.some(
-        (workingHour) => {
-          const workStart =
-            timeToMinutes(
-              workingHour.start_time
-            );
+let workingHours = specificWorkingHours;
 
-          const workEnd =
-            timeToMinutes(
-              workingHour.end_time
-            );
+// If staff-specific hours are not configured,
+// fall back to the general shop working hours.
+if (workingHours.length === 0) {
+  const [shopWorkingHours] = await connection.query(
+    `
+      SELECT start_time, end_time
+      FROM working_hours
+      WHERE shop_id = ?
+        AND branch_id IS NULL
+        AND staff_id IS NULL
+        AND day_of_week = ?
+        AND is_available = 1
+      ORDER BY start_time ASC
+    `,
+    [shopId, dayOfWeek]
+  );
 
-          return (
-            startMinute >= workStart &&
-            endMinute <= workEnd
-          );
-        }
-      );
+  workingHours = shopWorkingHours;
+}
 
-    if (!fitsWorkingHours) {
-      await connection.rollback();
+const fitsWorkingHours = workingHours.some((workingHour) => {
+  const workStart = timeToMinutes(workingHour.start_time);
+  const workEnd = timeToMinutes(workingHour.end_time);
 
-      return res.status(400).json({
-        success: false,
-        message:
-          "Selected time is outside staff working hours",
-      });
-    }
+  return startMinute >= workStart && endMinute <= workEnd;
+});
+
+if (!fitsWorkingHours) {
+  await connection.rollback();
+
+  return res.status(400).json({
+    success: false,
+    message: "Selected time is outside staff working hours",
+  });
+}
+
 
     /*
      * 4. Check blocked times

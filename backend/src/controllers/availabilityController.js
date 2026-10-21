@@ -164,7 +164,8 @@ const getAvailableSlots = async (req, res) => {
     // 6. Get staff working hours
     // --------------------------------------------------
 
-    const [workingHours] = await pool.query(
+    
+    const [specificWorkingHours] = await pool.query(
       `
       SELECT
         id,
@@ -173,14 +174,40 @@ const getAvailableSlots = async (req, res) => {
         is_available
       FROM working_hours
       WHERE shop_id = ?
-      AND branch_id = ?
-      AND staff_id = ?
-      AND day_of_week = ?
-      AND is_available = 1
+        AND branch_id = ?
+        AND staff_id = ?
+        AND day_of_week = ?
+        AND is_available = 1
       ORDER BY start_time ASC
       `,
       [shopId, branchId, staffId, dayOfWeek]
     );
+
+    let workingHours = specificWorkingHours;
+
+    // If no staff-specific hours exist, use general shop hours.
+    if (workingHours.length === 0) {
+      const [shopWorkingHours] = await pool.query(
+        `
+        SELECT
+          id,
+          start_time,
+          end_time,
+          is_available
+        FROM working_hours
+        WHERE shop_id = ?
+          AND branch_id IS NULL
+          AND staff_id IS NULL
+          AND day_of_week = ?
+          AND is_available = 1
+        ORDER BY start_time ASC
+        `,
+        [shopId, dayOfWeek]
+      );
+
+      workingHours = shopWorkingHours;
+    }
+
 
     if (workingHours.length === 0) {
       return res.json({

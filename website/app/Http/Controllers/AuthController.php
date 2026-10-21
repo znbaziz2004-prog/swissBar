@@ -55,9 +55,10 @@ class AuthController extends Controller
             'company_phone.regex' => __('messages.auth_phone_invalid'),
             'private_phone.regex' => __('messages.auth_phone_invalid'),
         ]);
+        
 
         try {
-            $response = Http::acceptJson()
+            $response = $this->http()
                 ->timeout(15)
                 ->post($this->apiUrl('/api/shops/register'), [
                     'shopName' => $data['shop_name'],
@@ -87,16 +88,12 @@ class AuthController extends Controller
             report($exception);
 
             return back()
-                ->withInput(
-                    $request->except([
-                        'password',
-                        'password_confirmation',
-                    ])
-                )
+                ->withInput($request->except([
+                    'password',
+                    'password_confirmation',
+                ]))
                 ->withErrors([
-                    'registration' => __(
-                        'messages.auth_registration_unavailable'
-                    ),
+                    'registration' => __('messages.auth_registration_unavailable'),
                 ]);
         }
 
@@ -111,12 +108,10 @@ class AuthController extends Controller
                 : 'registration';
 
             return back()
-                ->withInput(
-                    $request->except([
-                        'password',
-                        'password_confirmation',
-                    ])
-                )
+                ->withInput($request->except([
+                    'password',
+                    'password_confirmation',
+                ]))
                 ->withErrors([
                     $errorKey => $message,
                 ]);
@@ -124,10 +119,7 @@ class AuthController extends Controller
 
         return redirect()
             ->route('login')
-            ->with(
-                'status',
-                __('messages.auth_registration_success')
-            );
+            ->with('status', __('messages.auth_registration_success'));
     }
 
     public function login(Request $request): RedirectResponse
@@ -142,12 +134,9 @@ class AuthController extends Controller
         ]);
 
         try {
-            $response = Http::acceptJson()
+            $response = $this->http()
                 ->timeout(15)
-                ->post(
-                    $this->apiUrl('/api/auth/login'),
-                    $credentials
-                );
+                ->post($this->apiUrl('/api/auth/login'), $credentials);
         } catch (\Throwable $exception) {
             report($exception);
 
@@ -166,45 +155,129 @@ class AuthController extends Controller
                 ]);
         }
 
-        $request->session()->regenerate();
-
-        $request->session()->put('swiss_barber_auth', [
-            'token' => $response->json('data.token'),
-            'user' => $response->json('data.user'),
-        ]);
-
-               $user  = $response->json('data.user');
+        $user = $response->json('data.user');
         $token = $response->json('data.token');
 
+        $request->session()->regenerate();
+
+        if (!$token || !is_array($user)) {
+            return redirect()->route('login')->withErrors([
+                'login' => __('messages.auth_login_failed'),
+            ]);
+        }
+
+        $request->session()->put('swiss_barber_auth', [
+            'token' => $token,
+            'user' => $user,
+        ]);
+
         if (($user['role'] ?? null) === 'owner') {
-            $subscriptionStatus = 'pending';
+            // Owner returned from Stripe without a session: verify that payment now.
+            $pendingSessionId = $request->session()->pull('pending_payment_session_id');
+
+            if (
+                is_string($pendingSessionId) &&
+                preg_match('/^cs_(test|live)_[A-Za-z0-9_]+$/', $pendingSessionId)
+            ) {
+                foreach ([
+                    '/api/stripe/reconcile-subscription-payment',
+                    '/api/stripe/reconcile-registration-payment',
+                ] as $endpoint) {
+                    try {
+                        $verify = $this->http()
+                            ->withToken($token)
+                            ->timeout(30)
+                            ->post($this->apiUrl($endpoint), [
+                                'sessionId' => $pendingSessionId,
+                            ]);
+
+                        if ($verify->successful() && $verify->json('success')) {
+                            $request->session()->put('registration_payment_completed', true);
+                            break;
+                        }
+                    } catch (\Throwable $exception) {
+                        report($exception);
+                    }
+                }
+            }
 
             try {
-                $subResponse = Http::acceptJson()
+                $subResponse = $this->http()
                     ->withToken($token)
                     ->timeout(15)
                     ->get($this->apiUrl('/api/subscriptions/my'));
-
-                if ($subResponse->successful() && $subResponse->json('success')) {
-                    $subscriptionStatus = $subResponse->json('data.subscription.status')
-                        ?? 'pending';
-                }
             } catch (\Throwable $exception) {
                 report($exception);
+
+                $request->session()->forget('swiss_barber_auth');
+
+                return redirect()->route('login')->with('status',
+                    'Unable to verify your account status. Please try again.'
+                );
             }
 
-            // Payment abhi nahi hui -> payment page
-            if ($subscriptionStatus === 'pending') {
+            if (
+                !$subResponse->successful()
+                || !$subResponse->json('success')
+            ) {
+                $request->session()->forget('swiss_barber_auth');
+
+                return redirect()->route('login')->with('status',
+                    'Unable to verify your account status. Please try again.'
+                );
+            }
+
+            $subscriptionStatus = strtolower((string) (
+                $subResponse->json('data.subscription.status') ?? 'pending'
+            ));
+
+            $approvalStatus = strtolower((string) (
+                $subResponse->json('data.subscription.shop.approvalStatus')
+                ?? $subResponse->json('data.subscription.approvalStatus')
+                ?? 'pending'
+            ));
+
+            $paymentCompleted = $request->session()->get(
+                'registration_payment_completed',
+                false
+            );
+
+            // Payment complete nahi hui to payment page par bhejein.
+            if ($subscriptionStatus === 'pending' && !$paymentCompleted) {
+                $request->session()->forget('swiss_barber_auth');
+
                 return redirect()->route('subscription.payment');
             }
 
-            // Payment ho chuki (active ya approval pending) -> barber panel
+            // Super Admin approval ke baghair barber panel access nahi milega.
+            if ($approvalStatus !== 'approved') {
+                $request->session()->forget('swiss_barber_auth');
+
+                return redirect()->route('login')->with(
+                    'status',
+                    'Your request is in pending state. You will be able to access the barber panel once the Super Admin approves your account.'
+                );
+            }
+
+            $request->session()->forget('registration_payment_completed');
+
             return redirect()->away(
                 rtrim((string) config('services.barber_panel.url'), '/')
             );
         }
 
         return redirect()->route('home');
+    }
+
+    /**
+     * Request to the Express API. SSL verification follows
+     * SWISS_BARBER_API_VERIFY_SSL (default: verify).
+     */
+    private function http(): \Illuminate\Http\Client\PendingRequest
+    {
+        return Http::acceptJson()->withOptions([
+            'verify' => (bool) config('services.swiss_barber_api.verify_ssl', true),
+        ]);
     }
 
     private function apiUrl(string $path): string

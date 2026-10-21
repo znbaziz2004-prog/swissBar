@@ -4,11 +4,15 @@ return [
 
       'swiss_barber_api' => [
         'url' => env('SWISS_BARBER_API_URL', 'http://127.0.0.1:5000'),
+        // Set SWISS_BARBER_API_VERIFY_SSL=false in .env ONLY on a local Windows
+        // machine that has no CA bundle (cURL error 60). Keep true in production.
+        'verify_ssl' => env('SWISS_BARBER_API_VERIFY_SSL', true),
+        'timeout' => (int) env('SWISS_BARBER_API_TIMEOUT', 30),
     ],
 
     'barber_panel' => [
-        'url' => env('BARBER_PANEL_URL', '/customer/login'),
-    ],
+    'url' => env('BARBER_PANEL_URL'),
+],
 
     /*
     |--------------------------------------------------------------------------

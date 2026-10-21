@@ -1,3 +1,4 @@
+
 import { useCallback, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import {
@@ -29,7 +30,6 @@ function Field({ label, value }) {
       <p className="text-[11px] font-semibold text-[#929c95]">
         {label}
       </p>
-
       <p className="text-sm text-[#24312b] mt-1 break-words">
         {value || '—'}
       </p>
@@ -47,15 +47,16 @@ export default function ShopDetails() {
   const [busy, setBusy] = useState(false)
   const [confirmSuspend, setConfirmSuspend] = useState(false)
 
+  const [showFeaturedModal, setShowFeaturedModal] = useState(false)
+  const [featuredPriority, setFeaturedPriority] = useState('')
+
   const load = useCallback(async () => {
     try {
       setShop(await getShop(id))
+      setError('')
     } catch (err) {
       setError(
-        getErrorMessage(
-          err,
-          'Could not load this shop.',
-        ),
+        getErrorMessage(err, 'Could not load this shop.')
       )
     } finally {
       setLoading(false)
@@ -73,7 +74,6 @@ export default function ShopDetails() {
 
     try {
       await updateShopStatus(id, status)
-
       setConfirmSuspend(false)
 
       const messages = {
@@ -82,37 +82,53 @@ export default function ShopDetails() {
         suspended: 'Shop suspended.',
       }
 
-      setSuccess(
-        messages[status] || 'Shop status updated.',
-      )
-
+      setSuccess(messages[status] || 'Shop status updated.')
       await load()
     } catch (err) {
       setError(
-        getErrorMessage(
-          err,
-          'Could not update shop status.',
-        ),
+        getErrorMessage(err, 'Could not update shop status.')
       )
     } finally {
       setBusy(false)
     }
   }
 
+  const openFeaturedModal = () => {
+    const currentPriority = Number(shop?.featured_priority)
+
+    setFeaturedPriority(
+      currentPriority > 0 ? String(currentPriority) : ''
+    )
+    setError('')
+    setSuccess('')
+    setShowFeaturedModal(true)
+  }
+
   const handleFeatured = async () => {
+    const positionText = featuredPriority.trim()
+    const position =
+      positionText === '' ? null : Number(positionText)
+
+    if (
+      position !== null &&
+      (!Number.isSafeInteger(position) || position < 1)
+    ) {
+      setError('Position must be a positive whole number.')
+      return
+    }
+
     setBusy(true)
     setError('')
     setSuccess('')
 
-    const next = !Boolean(shop.is_featured)
-
     try {
-      await toggleShopFeatured(id, next)
+      await toggleShopFeatured(id, true, position)
 
+      setShowFeaturedModal(false)
       setSuccess(
-        next
-          ? 'Shop is now featured.'
-          : 'Shop removed from featured.',
+        position === null
+          ? 'Shop featured without a specific position.'
+          : `Shop featured at position #${position}.`
       )
 
       await load()
@@ -120,8 +136,28 @@ export default function ShopDetails() {
       setError(
         getErrorMessage(
           err,
-          'Could not update featured status.',
-        ),
+          'Could not update featured position.'
+        )
+      )
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const removeFeatured = async () => {
+    setBusy(true)
+    setError('')
+    setSuccess('')
+
+    try {
+      await toggleShopFeatured(id, false, null)
+
+      setShowFeaturedModal(false)
+      setSuccess('Shop removed from featured.')
+      await load()
+    } catch (err) {
+      setError(
+        getErrorMessage(err, 'Could not remove featured status.')
       )
     } finally {
       setBusy(false)
@@ -140,10 +176,7 @@ export default function ShopDetails() {
           backTo="/admin/shops"
           backLabel="All shops"
         />
-
-        <Notice>
-          {error || 'Shop not found.'}
-        </Notice>
+        <Notice>{error || 'Shop not found.'}</Notice>
       </div>
     )
   }
@@ -155,36 +188,27 @@ export default function ShopDetails() {
     <div className="space-y-6 pb-10">
       <PageHeader
         title={shop.name}
-        description={[
-          shop.city,
-          shop.canton,
-        ]
-          .filter(Boolean)
-          .join(', ')}
+        description={[shop.city, shop.canton].filter(Boolean).join(', ')}
         backTo="/admin/shops"
         backLabel="All shops"
         actions={
           <>
-            {/* FEATURE / UNFEATURE */}
             <Button
               variant="secondary"
               icon={Star}
-              onClick={handleFeatured}
+              onClick={openFeaturedModal}
               disabled={busy}
             >
-              {Boolean(shop.is_featured)
-                ? 'Remove featured'
+              {Number(shop.is_featured)
+                ? 'Change featured position'
                 : 'Make featured'}
             </Button>
 
-            {/* ACTIVE SHOP */}
             {shopStatus === 'active' && (
               <>
                 <Button
                   variant="ghost"
-                  onClick={() =>
-                    changeStatus('inactive')
-                  }
+                  onClick={() => changeStatus('inactive')}
                   loading={busy}
                 >
                   Deactivate shop
@@ -193,9 +217,7 @@ export default function ShopDetails() {
                 <Button
                   variant="danger"
                   icon={Ban}
-                  onClick={() =>
-                    setConfirmSuspend(true)
-                  }
+                  onClick={() => setConfirmSuspend(true)}
                   disabled={busy}
                 >
                   Suspend shop
@@ -203,33 +225,28 @@ export default function ShopDetails() {
               </>
             )}
 
-            {/* INACTIVE / SUSPENDED SHOP */}
-{(shopStatus === 'inactive' ||
-  shopStatus === 'suspended') && (
-  <Button
-    icon={CheckCircle2}
-    onClick={() => changeStatus('active')}
-    loading={busy}
-  >
-    Activate shop
-  </Button>
-)}
+            {(shopStatus === 'inactive' ||
+              shopStatus === 'suspended') && (
+              <Button
+                icon={CheckCircle2}
+                onClick={() => changeStatus('active')}
+                loading={busy}
+              >
+                Activate shop
+              </Button>
+            )}
 
-{/* PENDING SHOP */}
-{shopStatus === 'pending' && (
-  <div className="flex items-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
-    Registration pending approval
-  </div>
-)}
+            {shopStatus === 'pending' && (
+              <div className="flex items-center rounded-xl border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-700">
+                Registration pending approval
+              </div>
+            )}
           </>
         }
       />
 
       <Notice>{error}</Notice>
-
-      <Notice type="success">
-        {success}
-      </Notice>
+      <Notice type="success">{success}</Notice>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
@@ -270,51 +287,24 @@ export default function ShopDetails() {
             <h2 className="font-display text-xl font-bold">
               Shop details
             </h2>
-
             <Badge status={shop.status} />
           </div>
 
           <div className="grid sm:grid-cols-2 gap-5">
-            <Field
-              label="Name"
-              value={shop.name}
-            />
-
-            <Field
-              label="Phone"
-              value={shop.phone}
-            />
-
-            <Field
-              label="Email"
-              value={shop.email}
-            />
-
-            <Field
-              label="Address"
-              value={shop.address}
-            />
-
-            <Field
-              label="Postal code"
-              value={shop.postal_code}
-            />
-
-            <Field
-              label="Canton"
-              value={shop.canton}
-            />
-
-            <Field
-              label="Joined"
-              value={formatDate(shop.created_at)}
-            />
-
+            <Field label="Name" value={shop.name} />
+            <Field label="Phone" value={shop.phone} />
+            <Field label="Email" value={shop.email} />
+            <Field label="Address" value={shop.address} />
+            <Field label="Postal code" value={shop.postal_code} />
+            <Field label="Canton" value={shop.canton} />
+            <Field label="Joined" value={formatDate(shop.created_at)} />
             <Field
               label="Featured"
               value={
                 Number(shop.is_featured)
-                  ? 'Yes'
+                  ? `Yes${Number(shop.featured_priority) > 0
+                    ? ` — Position #${shop.featured_priority}`
+                    : ' — No position set'}`
                   : 'No'
               }
             />
@@ -327,46 +317,87 @@ export default function ShopDetails() {
           </h2>
 
           <div className="grid sm:grid-cols-2 gap-5">
-            <Field
-              label="Owner"
-              value={shop.owner_name}
-            />
-
-            <Field
-              label="Owner email"
-              value={shop.owner_email}
-            />
-
-            <Field
-              label="Owner phone"
-              value={shop.owner_phone}
-            />
-
-            <Field
-              label="Plan"
-              value={shop.plan_name}
-            />
-
-            <Field
-              label="Subscription"
-              value={shop.subscription_status}
-            />
-
+            <Field label="Owner" value={shop.owner_name} />
+            <Field label="Owner email" value={shop.owner_email} />
+            <Field label="Owner phone" value={shop.owner_phone} />
+            <Field label="Plan" value={shop.plan_name} />
+            <Field label="Subscription" value={shop.subscription_status} />
             <Field
               label="Renews on"
-              value={formatDate(
-                shop.subscription_ends_at,
-              )}
+              value={formatDate(shop.subscription_ends_at)}
             />
           </div>
         </section>
       </div>
 
       <Modal
-        open={confirmSuspend}
-        onClose={() =>
-          setConfirmSuspend(false)
+        open={showFeaturedModal}
+        onClose={() => {
+          if (!busy) setShowFeaturedModal(false)
+        }}
+        size="sm"
+        title={
+          Number(shop.is_featured)
+            ? 'Change featured position'
+            : 'Feature this shop'
         }
+        description="Choose the shop's position in Best in the Region. Leave empty to show it after shops with numbered positions."
+        footer={
+          <>
+            <Button
+              variant="ghost"
+              onClick={() => setShowFeaturedModal(false)}
+              disabled={busy}
+            >
+              Cancel
+            </Button>
+
+            {Number(shop.is_featured) > 0 && (
+              <Button
+                variant="danger"
+                onClick={removeFeatured}
+                loading={busy}
+              >
+                Remove featured
+              </Button>
+            )}
+
+            <Button onClick={handleFeatured} loading={busy}>
+              Save position
+            </Button>
+          </>
+        }
+      >
+        <div className="space-y-2">
+          <label
+            htmlFor="featuredPriority"
+            className="block text-sm font-medium text-[#24312b]"
+          >
+            Display position
+          </label>
+
+          <input
+            id="featuredPriority"
+            type="number"
+            min="1"
+            step="1"
+            value={featuredPriority}
+            onChange={(e) => setFeaturedPriority(e.target.value)}
+            placeholder="e.g. 1"
+            disabled={busy}
+            className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm outline-none focus:border-[#21483a]"
+          />
+
+          <p className="text-xs text-gray-500">
+            Position 1 appears first, position 2 second, and so on.
+            Leave empty to place this shop after numbered shops.
+          </p>
+        </div>
+      </Modal>
+
+      <Modal
+        open={confirmSuspend}
+        onClose={() => setConfirmSuspend(false)}
         size="sm"
         title="Suspend this shop?"
         description="The shop will disappear from search and customers will not be able to book until you activate it again."
@@ -374,18 +405,14 @@ export default function ShopDetails() {
           <>
             <Button
               variant="ghost"
-              onClick={() =>
-                setConfirmSuspend(false)
-              }
+              onClick={() => setConfirmSuspend(false)}
             >
               Cancel
             </Button>
 
             <Button
               variant="danger"
-              onClick={() =>
-                changeStatus('suspended')
-              }
+              onClick={() => changeStatus('suspended')}
               loading={busy}
             >
               Suspend shop
