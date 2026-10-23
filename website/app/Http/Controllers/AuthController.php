@@ -261,9 +261,41 @@ class AuthController extends Controller
 
             $request->session()->forget('registration_payment_completed');
 
-            return redirect()->away(
-                rtrim((string) config('services.barber_panel.url'), '/')
-            );
+           
+$handoffResponse = $this->http()
+    ->withToken($token)
+    ->timeout(15)
+    ->post($this->apiUrl('/api/auth/handoff/create'));
+
+if (!$handoffResponse->successful()) {
+    \Log::error('Barber login handoff creation failed', [
+        'status' => $handoffResponse->status(),
+    ]);
+
+    return redirect()->route('login')
+        ->withErrors([
+            'email' => 'Could not open the barber panel. Please try again.',
+        ]);
+}
+
+$handoffCode = $handoffResponse->json('data.code');
+
+if (!is_string($handoffCode) || $handoffCode === '') {
+    return redirect()->route('login')
+        ->withErrors([
+            'email' => 'Could not complete barber panel login. Please try again.',
+        ]);
+}
+
+$panelUrl = rtrim(
+    (string) config('services.barber_panel.url'),
+    '/'
+);
+
+return redirect()->away(
+    $panelUrl . '?handoff=' . urlencode($handoffCode)
+);
+
         }
 
         return redirect()->route('home');

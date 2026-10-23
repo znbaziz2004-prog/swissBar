@@ -268,9 +268,149 @@ const getMe = async (req, res) => {
   }
 };
 
+// =====================================================
+// CREATE ONE-TIME LOGIN HANDOFF
+// =====================================================
+
+const crypto = require("crypto");
+
+const createHandoff = async (req, res) => {
+  try {
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({
+        success: false,
+        message: "Authentication required",
+      });
+    }
+
+    const code = crypto.randomBytes(32).toString("hex");
+    const codeHash = crypto
+      .createHash("sha256")
+      .update(code)
+      .digest("hex");
+
+    await pool.query(
+      `INSERT INTO auth_handoff_codes
+        (code_hash, user_id, expires_at)
+       VALUES (?, ?, DATE_ADD(UTC_TIMESTAMP(), INTERVAL 60 SECOND))`,
+      [codeHash, userId]
+    );
+
+    return res.json({
+      success: true,
+      data: { code },
+    });
+  } catch (error) {
+    console.error("Create handoff error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not create login handoff",
+    });
+  }
+};
+
+
+// =====================================================
+// EXCHANGE ONE-TIME HANDOFF
+// =====================================================
+
+const exchangeHandoff = async (req, res) => {
+  const connection = await pool.getConnection();
+
+  try {
+    const { code } = req.body || {};
+
+    if (typeof code !== "string" || !/^[a-f0-9]{64}$/.test(code)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid or expired login code",
+      });
+    }
+
+    const codeHash = crypto
+      .createHash("sha256")
+      .update(code)
+      .digest("hex");
+
+    await connection.beginTransaction();
+
+    const [rows] = await connection.query(
+      `SELECT id, user_id
+       FROM auth_handoff_codes
+       WHERE code_hash = ?
+         AND used_at IS NULL
+         AND expires_at > UTC_TIMESTAMP()
+       LIMIT 1
+       FOR UPDATE`,
+      [codeHash]
+    );
+
+    if (!rows.length) {
+      await connection.rollback();
+
+      return res.status(401).json({
+        success: false,
+        message: "Invalid or expired login code",
+      });
+    }
+
+    const handoff = rows[0];
+
+    await connection.query(
+      `UPDATE auth_handoff_codes
+       SET used_at = UTC_TIMESTAMP()
+       WHERE id = ?`,
+      [handoff.id]
+    );
+
+    const [users] = await connection.query(
+      `SELECT id, name, email, phone, role, status, created_at
+       FROM users
+       WHERE id = ?
+       LIMIT 1`,
+      [handoff.user_id]
+    );
+
+    if (!users.length || users[0].status !== "active") {
+      await connection.rollback();
+
+      return res.status(401).json({
+        success: false,
+        message: "Account is unavailable",
+      });
+    }
+
+    const user = users[0];
+    const token = generateToken(user);
+
+    await connection.commit();
+
+    return res.json({
+      success: true,
+      data: { user, token },
+    });
+  } catch (error) {
+    await connection.rollback();
+
+    console.error("Exchange handoff error:", error.message);
+
+    return res.status(500).json({
+      success: false,
+      message: "Could not complete login handoff",
+    });
+  } finally {
+    connection.release();
+  }
+};
+
 
 module.exports = {
   register,
   login,
   getMe,
+  createHandoff,
+  exchangeHandoff,
 };

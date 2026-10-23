@@ -4,6 +4,8 @@ const {
   register,
   login,
   getMe,
+  createHandoff,
+  exchangeHandoff,
 } = require("../controllers/authController");
 
 const authMiddleware = require("../middleware/authMiddleware");
@@ -15,6 +17,9 @@ const router = express.Router();
 // Public
 router.post("/register", register);
 router.post("/login", login);
+// One-time login handoff
+router.post("/handoff/create", authMiddleware, createHandoff);
+router.post("/handoff/exchange", exchangeHandoff);
 
 
 // Any authenticated user

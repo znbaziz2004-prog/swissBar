@@ -93,3 +93,6 @@ export const submitTestimonial = async (testimonial) =>
   unwrap(
     await api.post("/barber-testimonials", { testimonial })
   );
+
+  export const exchangeHandoffRequest = async (code) =>
+  unwrap(await api.post('/auth/handoff/exchange', { code }));
