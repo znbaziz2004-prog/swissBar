@@ -2,6 +2,7 @@
 <html lang="en">
 
 <head>
+    <script>document.documentElement.classList.add('js')</script>
 
     <meta charset="UTF-8">
 
@@ -21,7 +22,7 @@
 
     <meta
         name="theme-color"
-        content="#0a0a0a"
+        content="#F6F1E7"
     >
 
     <title>

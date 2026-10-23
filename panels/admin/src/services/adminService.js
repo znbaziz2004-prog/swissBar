@@ -26,10 +26,20 @@ export const getRegistrations = async (params = {}) =>
     'registrations',
   )
 
-export const getRegistration = async (id) =>
-  unwrap(
-    await api.get(`/admin/owners/registrations/${id}`),
+
+
+export const getRegistration = async (id) => {
+  const response = await api.get(
+    `/admin/owners/registrations/${id}`
   )
+
+  const result = response?.data
+  const data = result?.data ?? result
+
+  return data?.registration ?? data
+}
+
+
 
 export const approveRegistration = async (id) =>
   unwrap(
@@ -128,3 +138,18 @@ export const getSettings = async () => unwrap(await api.get('/settings'))
 
 export const saveSettings = async (payload) =>
   unwrap(await api.put('/settings', payload))
+
+
+/* CONTACT MESSAGES */
+
+export const getContactMessages = async () =>
+  toList(
+    unwrap(await api.get('/contact/admin')),
+    'messages',
+  )
+
+export const updateContactMessageStatus = async (id, status) =>
+  unwrap(
+    await api.patch(`/contact/admin/${id}/status`, { status }),
+  )
+

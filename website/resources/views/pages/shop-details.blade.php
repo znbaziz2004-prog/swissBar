@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async function () {
         ];
 
         container.innerHTML = `
-            <div class="sb-shop">
+            <div class="sb-shop-wrap">
                 <div class="sb-shop-media">
                     <img src="${esc(shop.image || '/images/shop-placeholder.svg')}" alt="${esc(shop.name)}" onerror="this.src='/images/shop-placeholder.svg'">
                     <span class="sb-shop-badge">${esc(shop.plan_name || 'Barbershop')}</span>

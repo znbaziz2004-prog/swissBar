@@ -275,4 +275,68 @@ return [
 'contact_success' => 'Your message has been sent successfully.',
 'contact_error' => 'Could not send your message. Please try again.',
 
+    // Homepage translations
+    'hero_words' => 'cut,trim,fade,shave',
+    'hero_tag' => 'YOUR NEXT GREAT HAIRCUT STARTS HERE',
+    'hero_title_a' => 'Find your',
+    'hero_title_b' => 'perfect barber.',
+    'popular' => 'Popular',
+    'demo_service' => 'Haircut',
+    'demo_tomorrow' => 'Tomorrow',
+    'demo_book' => 'Book appointment',
+    'demo_online' => 'Online booking',
+    'demo_confirmed' => 'Booking confirmed',
+
+    // Why choose Swiss Barber
+    'why_eyebrow' => 'WHY SWISS BARBER',
+    'why_title_a' => 'Your style.',
+    'why_title_b' => 'Your barber.',
+    'why_title_c' => 'Your time.',
+    'why_sub' => 'Find trusted barbers, check availability and book your next appointment in just a few clicks.',
+
+    // Homepage features
+    'feat_1_title' => 'Barbers near you',
+    'feat_1_text' => 'See barbershops based on your location, or search any city manually.',
+    'feat_2_title' => 'Live availability',
+    'feat_2_text' => 'Free time slots are shown instantly, so you pick what fits your day.',
+    'feat_3_title' => 'Booking reminders',
+    'feat_3_text' => 'Arrive on time thanks to a reminder before your appointment.',
+    'feat_4_title' => 'No waiting line',
+    'feat_4_text' => 'Book ahead, walk in at your time and skip the queue completely.',
+    'feat_5_title' => 'Real reviews',
+    'feat_5_text' => 'Read honest feedback from other customers before you choose.',
+    'feat_6_title' => 'Works on any device',
+    'feat_6_text' => 'Book from your phone, tablet or computer, wherever you are.',
+
+    // Cities and barbers
+    'cities_title_a' => 'Find a barber',
+    'cities_title_b' => 'in your city.',
+    'cities_sub' => 'Explore barbershops across Switzerland and find the right one for you.',
+    'explore_barbers' => 'Explore barbers',
+    'view_shop' => 'View shop',
+    'near_you' => 'Near you',
+    'region_sub' => 'Discover barbershops in your region and book your next appointment.',
+
+    // Homepage FAQ
+    'faq' => 'FAQ',
+    'faq_title_a' => 'Got questions?',
+    'faq_title_b' => 'We have answers.',
+    'faq_sub' => 'Everything you need to know about finding a barber and booking an appointment.',
+    'faq_1_q' => 'How do I book an appointment?',
+    'faq_1_a' => 'Search for a barber by name or city, pick a service and a free time slot, then confirm. No phone call needed.',
+    'faq_2_q' => 'Do I need to create an account?',
+    'faq_2_a' => 'No account is needed to book an appointment. Simply choose your barber, service and available time.',
+    'faq_3_q' => 'Can I choose my preferred barber?',
+    'faq_3_a' => 'Yes. Browse barbershops and select the barber and service that best suit your needs.',
+    'faq_4_q' => 'Can I book an appointment online?',
+    'faq_4_a' => 'Yes. You can check available time slots and book your appointment online whenever it is convenient for you.',
+
+    // Homepage call to action
+    'contact_us' => 'Contact us',
+    'cta_title' => 'Ready for your next fresh cut?',
+    'cta_text' => 'Find your barber, choose a time that suits you and book your next appointment online.',
+
+    // Homepage service ticker
+    'ticker' => 'Haircut,Beard trim,Hot towel shave,Skin fade,Kids cut,Styling',
+
 ];

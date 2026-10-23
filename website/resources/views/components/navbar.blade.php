@@ -7,6 +7,7 @@
 
        <nav class="kk-main-nav">
     <a href="{{ route('search') }}">{{ __('messages.search') }}</a>
+    
 </nav>
 
         <div class="kk-header-actions" style="display: flex; align-items: center; gap: 12px;">
@@ -72,6 +73,8 @@
 
     <div class="kk-mobile-nav" id="kkMobileNav">
     <a href="{{ route('search') }}">{{ __('messages.search') }}</a>
+    <a href="{{ url('/') }}#how">{{ __('messages.how_it_works') }}</a>
+    <a href="{{ url('/') }}#faq">{{ \Illuminate\Support\Facades\Lang::has('messages.faq') ? __('messages.faq') : 'FAQ' }}</a>
 
     <a href="{{ route('register') }}" class="kk-register">
         {{ __('messages.register_barbershop') }}

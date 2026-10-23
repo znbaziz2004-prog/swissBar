@@ -1,4 +1,4 @@
-<section class="kk-how-it-works">
+<section class="kk-how-it-works" id="how">
 
     <div class="kk-how-bg-shape kk-how-bg-shape-1"></div>
     <div class="kk-how-bg-shape kk-how-bg-shape-2"></div>
@@ -12,8 +12,8 @@
                 {{ __('messages.simple_steps') }}
             </span>
 
-            <h2>
-                {{ __('messages.how_it_works') }}
+            <h2 class="sb-accent">
+                {{ \Illuminate\Support\Str::ucfirst(mb_strtolower(__('messages.how_it_works'))) }}
             </h2>
 
             <p>
@@ -23,7 +23,7 @@
 
         </div>
 
-        <div class="kk-how-grid">
+        <div class="kk-how-grid sb-stagger">
 
             <article class="kk-how-card">
 

@@ -2379,3 +2379,284 @@ button {
   color: #ddd;
   line-height: 1.6;
 }
+
+/* =========================================
+   CUSTOMER APPOINTMENT REVIEW - UI FIX
+========================================= */
+
+.customer-dashboard .customer-review-section {
+  width: 100%;
+  margin-top: 30px;
+  padding: 26px;
+  border: 1px solid #e1e9e2;
+  border-radius: 18px;
+  background: #ffffff;
+  color: #24352b;
+  box-shadow: 0 8px 28px rgba(25, 60, 40, 0.055);
+  box-sizing: border-box;
+}
+
+.customer-dashboard .customer-review-section * {
+  box-sizing: border-box;
+}
+
+.customer-dashboard .review-heading {
+  margin-bottom: 24px;
+}
+
+.customer-dashboard .review-heading .panel-label {
+  display: inline-block;
+  margin-bottom: 9px;
+  color: #347553;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1.7px;
+}
+
+.customer-dashboard .review-heading h2 {
+  margin: 0 0 9px;
+  color: #173e2d;
+  font-size: 25px;
+  font-weight: 750;
+  line-height: 1.35;
+  letter-spacing: -0.6px;
+}
+
+.customer-dashboard .review-heading p {
+  margin: 0;
+  color: #68766d;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+/* Rating label */
+.customer-dashboard .review-field-label {
+  display: block;
+  margin: 20px 0 10px;
+  color: #293b30 !important;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+/* Interactive stars */
+.customer-dashboard .review-rating-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 4px 0 8px;
+}
+
+.customer-dashboard .review-star-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 45px;
+  height: 45px;
+  padding: 0;
+  border: 1px solid #e2e8e2;
+  border-radius: 12px;
+  background: #f7f9f7;
+  color: #c5cec6 !important;
+  font-size: 27px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.customer-dashboard .review-star-button:hover {
+  border-color: #d3a444;
+  background: #fff9e9;
+  color: #d6a02f !important;
+  transform: translateY(-2px);
+}
+
+.customer-dashboard .review-star-button.selected {
+  border-color: #efdca7;
+  background: #fff8e5;
+  color: #d39a20 !important;
+}
+
+.customer-dashboard .review-star-button:focus-visible {
+  outline: 3px solid rgba(52, 117, 83, 0.25);
+  outline-offset: 3px;
+}
+
+.customer-dashboard .review-rating-hint {
+  min-height: 18px;
+  margin: 8px 0 22px;
+  color: #66756a !important;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Comment textarea */
+.customer-dashboard .review-comment-input {
+  display: block;
+  width: 100%;
+  min-height: 125px;
+  padding: 14px 15px;
+  border: 1px solid #dce5dd;
+  border-radius: 12px;
+  outline: none;
+  background: #fbfdfb !important;
+  color: #25382c !important;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.7;
+  resize: vertical;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background 0.2s ease;
+}
+
+.customer-dashboard .review-comment-input::placeholder {
+  color: #8a978d !important;
+  opacity: 1;
+}
+
+.customer-dashboard .review-comment-input:focus {
+  border-color: #43815d;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 4px rgba(52, 117, 83, 0.1);
+}
+
+.customer-dashboard .review-comment-input:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Submit button */
+.customer-dashboard .submit-review-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 45px;
+  margin-top: 20px;
+  padding: 0 23px;
+  border: 1px solid #174d3a;
+  border-radius: 10px;
+  background: #174d3a;
+  color: #ffffff !important;
+  font-size: 13px;
+  font-weight: 750;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.customer-dashboard .submit-review-button:hover:not(:disabled) {
+  background: #103b2c;
+  box-shadow: 0 6px 15px rgba(23, 77, 58, 0.17);
+  transform: translateY(-1px);
+}
+
+.customer-dashboard .submit-review-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Existing submitted review */
+.customer-dashboard .existing-review {
+  padding: 21px;
+  border: 1px solid #e1e9e2;
+  border-radius: 14px;
+  background: #f8fbf8;
+  color: #293b30 !important;
+}
+
+.customer-dashboard .existing-review .review-stars {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 13px;
+}
+
+.customer-dashboard .existing-review .review-star {
+  color: #d4dcd5 !important;
+  font-size: 25px;
+  line-height: 1;
+}
+
+.customer-dashboard .existing-review .review-star.selected {
+  color: #d39a20 !important;
+}
+
+.customer-dashboard .review-comment {
+  margin: 0;
+  padding: 14px 15px;
+  border-left: 3px solid #43815d;
+  border-radius: 0 9px 9px 0;
+  background: #ffffff;
+  color: #35473a !important;
+  font-size: 13px;
+  line-height: 1.8;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.customer-dashboard .review-status-message {
+  margin-top: 17px;
+  padding: 12px 14px;
+  border: 1px solid #dce9de;
+  border-radius: 9px;
+  background: #edf6ee;
+  color: #315d3e !important;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.customer-dashboard .review-status-message strong {
+  color: #234a30 !important;
+}
+
+.customer-dashboard .existing-review p {
+  color: #35473a;
+}
+
+/* Loading review text */
+.customer-dashboard .customer-review-section > p {
+  color: #68766d !important;
+  font-size: 13px;
+}
+
+/* Mobile responsive */
+@media (max-width: 600px) {
+  .customer-dashboard .customer-review-section {
+    margin-top: 22px;
+    padding: 18px;
+    border-radius: 14px;
+  }
+
+  .customer-dashboard .review-heading h2 {
+    font-size: 22px;
+  }
+
+  .customer-dashboard .review-rating-input {
+    gap: 6px;
+  }
+
+  .customer-dashboard .review-star-button {
+    width: 41px;
+    height: 41px;
+    border-radius: 10px;
+    font-size: 24px;
+  }
+
+  .customer-dashboard .submit-review-button {
+    width: 100%;
+  }
+
+  .customer-dashboard .existing-review {
+    padding: 15px;
+  }
+}

@@ -271,5 +271,130 @@ return [
 'contact_fill_required' => 'Compila tutti i campi obbligatori.',
 'contact_success' => 'Il tuo messaggio è stato inviato correttamente.',
 'contact_error' => 'Impossibile inviare il messaggio. Riprova.',
+    // Homepage translations
+    'hero_words' => 'taglio,rifinitura,sfumatura,rasatura',
+    'hero_tag' => 'IL TUO PROSSIMO TAGLIO PERFETTO INIZIA QUI',
+    'hero_title_a' => 'Trova il tuo',
+    'hero_title_b' => 'barbiere ideale.',
+    'popular' => 'Popolare',
+    'demo_service' => 'Taglio di capelli',
+    'demo_tomorrow' => 'Domani',
+    'demo_book' => 'Prenota un appuntamento',
+    'demo_online' => 'Prenotazione online',
+    'demo_confirmed' => 'Prenotazione confermata',
 
+    // Why choose Swiss Barber
+    'why_eyebrow' => 'PERCHÉ SWISS BARBER',
+    'why_title_a' => 'Il tuo stile.',
+    'why_title_b' => 'Il tuo barbiere.',
+    'why_title_c' => 'Il tuo tempo.',
+    'why_sub' => 'Trova barbieri affidabili, controlla la disponibilità e prenota il tuo prossimo appuntamento in pochi clic.',
+
+    // Homepage features
+    'feat_1_title' => 'Barbieri vicino a te',
+    'feat_1_text' => 'Scopri i saloni nella tua zona oppure cerca direttamente una città.',
+    'feat_2_title' => 'Disponibilità in tempo reale',
+    'feat_2_text' => 'Visualizza subito gli orari disponibili e scegli quello più adatto a te.',
+    'feat_3_title' => 'Promemoria appuntamenti',
+    'feat_3_text' => 'Ricevi un promemoria prima dell’appuntamento per arrivare puntuale.',
+    'feat_4_title' => 'Niente code',
+    'feat_4_text' => 'Prenota in anticipo ed evita le lunghe attese.',
+    'feat_5_title' => 'Recensioni autentiche',
+    'feat_5_text' => 'Leggi le opinioni sincere degli altri clienti prima di scegliere.',
+    'feat_6_title' => 'Su qualsiasi dispositivo',
+    'feat_6_text' => 'Prenota dal telefono, dal tablet o dal computer.',
+
+    // Cities and barbers
+    'cities_title_a' => 'Trova un barbiere',
+    'cities_title_b' => 'nella tua città.',
+    'cities_sub' => 'Esplora i saloni in tutta la Svizzera e trova quello giusto per te.',
+    'explore_barbers' => 'Scopri i barbieri',
+    'view_shop' => 'Visualizza il salone',
+    'near_you' => 'Vicino a te',
+    'region_sub' => 'Scopri i saloni della tua regione e prenota il tuo prossimo appuntamento.',
+
+    // Homepage FAQ
+    'faq' => 'FAQ',
+    'faq_title_a' => 'Hai domande?',
+    'faq_title_b' => 'Abbiamo le risposte.',
+    'faq_sub' => 'Tutto quello che devi sapere per trovare un barbiere e prenotare un appuntamento.',
+    'faq_1_q' => 'Come posso prenotare un appuntamento?',
+    'faq_1_a' => 'Cerca un barbiere o una città, scegli un servizio e un orario disponibile, quindi conferma. Non serve telefonare.',
+    'faq_2_q' => 'Devo creare un account?',
+    'faq_2_a' => 'Non è necessario creare un account. Scegli il barbiere, il servizio e un orario disponibile.',
+    'faq_3_q' => 'Posso scegliere il mio barbiere preferito?',
+    'faq_3_a' => 'Sì. Esplora i saloni e scegli il barbiere e il servizio più adatti alle tue esigenze.',
+    'faq_4_q' => 'Posso prenotare online?',
+    'faq_4_a' => 'Sì. Controlla gli orari disponibili e prenota online quando preferisci.',
+
+    // Homepage call to action
+    'contact_us' => 'Contattaci',
+    'cta_title' => 'Pronto per un nuovo taglio?',
+    'cta_text' => 'Trova il tuo barbiere, scegli l’orario più comodo e prenota online il tuo prossimo appuntamento.',
+
+    // Homepage service ticker
+    'ticker' => 'Taglio di capelli,Rifinitura barba,Rasatura con asciugamano caldo,Sfumatura,Taglio bambini,Acconciatura',
+     // Homepage translations
+    'hero_words' => 'tagliar,curdar,fade,rasar',
+    'hero_tag' => 'TES PROXIM TAGLI PERFECT CUMENZA QUA',
+    'hero_title_a' => 'Chatta tes',
+    'hero_title_b' => 'barbier ideal.',
+    'popular' => 'Popular',
+    'demo_service' => 'Tagl da chavels',
+    'demo_tomorrow' => 'Damaun',
+    'demo_book' => 'Reservar in termin',
+    'demo_online' => 'Reservaziun online',
+    'demo_confirmed' => 'Reservaziun confermada',
+
+    // Why choose Swiss Barber
+    'why_eyebrow' => 'PERTGE SWISS BARBER',
+    'why_title_a' => 'Tes stil.',
+    'why_title_b' => 'Tes barbier.',
+    'why_title_c' => 'Tes temp.',
+    'why_sub' => 'Chatta barbieris fidabels, controlles las disponibilitads e reservas tes proxim termin cun paucs clics.',
+
+    // Homepage features
+    'feat_1_title' => 'Barbieris en tia vischinanza',
+    'feat_1_text' => 'Scuvra salons en tia vischinanza u tschertga ina citad specifica.',
+    'feat_2_title' => 'Disponibilitad actuala',
+    'feat_2_text' => 'Vesa immediatamain ils temps libers e tscherna quel che ta cunvegna.',
+    'feat_3_title' => 'Reminders per ils termins',
+    'feat_3_text' => 'Survegn in reminder avant tes termin per arrivar a temp.',
+    'feat_4_title' => 'Naginas colonnas',
+    'feat_4_text' => 'Reservas ordavant ed evites lungas spetgas.',
+    'feat_5_title' => 'Recensiuns autenticas',
+    'feat_5_text' => 'Legia las opiniuns d’auters clients avant che ti tschernas.',
+    'feat_6_title' => 'Sin mintga apparat',
+    'feat_6_text' => 'Reservas cun tes telefon, tablet u computer.',
+
+    // Cities and barbers
+    'cities_title_a' => 'Chatta in barbier',
+    'cities_title_b' => 'en tia citad.',
+    'cities_sub' => 'Scuvra salons da barbier en Svizra e chatta quel che ta cunvegna.',
+    'explore_barbers' => 'Scuvrir ils barbieris',
+    'view_shop' => 'Vesair il salon',
+    'near_you' => 'En tia vischinanza',
+    'region_sub' => 'Scuvra salons en tia regiun e reservas tes proxim termin.',
+
+    // Homepage FAQ
+    'faq' => 'FAQ',
+    'faq_title_a' => 'Has dumondas?',
+    'faq_title_b' => 'Nus avain las respostas.',
+    'faq_sub' => 'Tut quai che ti stos savair per chattar in barbier e reservar in termin.',
+    'faq_1_q' => 'Co poss jau reservar in termin?',
+    'faq_1_a' => 'Tschertga in barbier u ina citad, tscherna in servetsch ed in temp liber, e conferma la reservaziun. In telefon na dovra betg.',
+    'faq_2_q' => 'Stoss jau crear in conto?',
+    'faq_2_a' => 'Ti na stos betg crear in conto per reservar. Tscherna simplamain il barbier, il servetsch ed in temp liber.',
+    'faq_3_q' => 'Poss jau tscherner mes barbier preferì?',
+    'faq_3_a' => 'Gea. Mira ils salons e tscherna il barbier ed il servetsch che ta cunvegnan.',
+    'faq_4_q' => 'Poss jau reservar online?',
+    'faq_4_a' => 'Gea. Controlles ils temps libers e reservas online cura che ti vuls.',
+
+    // Homepage call to action
+    'contact_us' => 'Contactescha nus',
+    'cta_title' => 'Pront per in nov tagl?',
+    'cta_text' => 'Chatta tes barbier, tscherna in temp adattà e reservas tes proxim termin online.',
+
+    // Homepage service ticker
+    'ticker' => 'Tagl da chavels,Tagl da barba,Rasada cun taila chauda,Sfumatura,Tagl per uffants,Styling',
     ];

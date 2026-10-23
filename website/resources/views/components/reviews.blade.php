@@ -1,8 +1,12 @@
 <section class="kk-reviews" id="reviews">
     <div class="kk-reviews-inner">
 
-        <div class="kk-reviews-heading">
-            <p>{{ __('messages.reviews_heading') }}</p>
+        @php
+            $t = fn ($key, $default) => \Illuminate\Support\Facades\Lang::has('messages.' . $key) ? __('messages.' . $key) : $default;
+        @endphp
+        <div class="kk-reviews-heading sb-head">
+            <div class="sb-eyebrow">{{ $t('testimonials', 'Testimonials') }}</div>
+            <h2 class="sb-h2 sb-accent">{{ \Illuminate\Support\Str::ucfirst(mb_strtolower(__('messages.reviews_heading'))) }}</h2>
         </div>
 
         <div class="kk-reviews-slider">

@@ -7,5 +7,12 @@ export default defineConfig({
   plugins: [react()],
   server: {
     port: 5174,
+    // Forward API calls to the Express backend instead of answering 404 here.
+    proxy: {
+      '/api': {
+        target: 'http://127.0.0.1:5000',
+        changeOrigin: true,
+      },
+    },
   },
 })

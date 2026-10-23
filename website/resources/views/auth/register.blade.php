@@ -347,27 +347,73 @@
                     @enderror
                 </div>
 
-                <div class="swiss-auth-field">
-                    <label for="city">
-                        {{ __('messages.register_city') }}
-                        <span class="swiss-auth-required">*</span>
-                    </label>
+                
+<div class="swiss-auth-field">
+    <label for="city">
+        {{ __('messages.register_city') }}
+        <span class="swiss-auth-required">*</span>
+    </label>
 
-                    <input
-                        id="city"
-                        name="city"
-                        type="text"
-                        value="{{ old('city') }}"
-                        required
-                        maxlength="100"
-                        autocomplete="address-level2"
-                        placeholder="Zurich"
-                    >
+    <input
+        id="city"
+        name="city"
+        type="text"
+        value="{{ old('city') }}"
+        required
+        maxlength="100"
+        autocomplete="address-level2"
+        placeholder="Type or select a Swiss city"
+        list="swiss-cities-list"
+    >
 
-                    @error('city')
-                        <p class="swiss-auth-error">{{ $message }}</p>
-                    @enderror
-                </div>
+    <datalist id="swiss-cities-list">
+        <option value="Zurich">
+        <option value="Geneva">
+        <option value="Basel">
+        <option value="Lausanne">
+        <option value="Bern">
+        <option value="Winterthur">
+        <option value="Lucerne">
+        <option value="St. Gallen">
+        <option value="Lugano">
+        <option value="Biel/Bienne">
+        <option value="Thun">
+        <option value="Zug">
+        <option value="Fribourg">
+        <option value="Chur">
+        <option value="Neuchatel">
+        <option value="Schaffhausen">
+        <option value="Sion">
+        <option value="Liestal">
+        <option value="Bellinzona">
+        <option value="Locarno">
+        <option value="Aarau">
+        <option value="Solothurn">
+        <option value="Olten">
+        <option value="Rapperswil-Jona">
+        <option value="Yverdon-les-Bains">
+        <option value="Nyon">
+        <option value="Vevey">
+        <option value="Montreux">
+        <option value="Morges">
+        <option value="Baden">
+        <option value="Kloten">
+        <option value="Dietikon">
+        <option value="Uster">
+        <option value="Dübendorf">
+        <option value="Emmen">
+        <option value="Kriens">
+        <option value="Wil">
+        <option value="Bulle">
+        <option value="Payerne">
+        <option value="Delémont">
+    </datalist>
+
+    @error('city')
+        <p class="swiss-auth-error">{{ $message }}</p>
+    @enderror
+</div>
+
 
                 <div class="swiss-auth-field swiss-auth-field--full">
                     <label for="company_phone">

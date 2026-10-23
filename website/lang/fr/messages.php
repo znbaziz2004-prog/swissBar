@@ -271,5 +271,68 @@ return [
 'contact_fill_required' => 'Veuillez remplir tous les champs obligatoires.',
 'contact_success' => 'Votre message a été envoyé avec succès.',
 'contact_error' => 'Impossible d’envoyer votre message. Veuillez réessayer.',
+    // Homepage translations
+    'hero_words' => 'coupe,taille,dégradé,rasage',
+    'hero_tag' => 'VOTRE PROCHAINE COUPE PARFAITE COMMENCE ICI',
+    'hero_title_a' => 'Trouvez votre',
+    'hero_title_b' => 'barbier idéal.',
+    'popular' => 'Populaire',
+    'demo_service' => 'Coupe de cheveux',
+    'demo_tomorrow' => 'Demain',
+    'demo_book' => 'Réserver un rendez-vous',
+    'demo_online' => 'Réservation en ligne',
+    'demo_confirmed' => 'Réservation confirmée',
+
+    // Why choose Swiss Barber
+    'why_eyebrow' => 'POURQUOI SWISS BARBER',
+    'why_title_a' => 'Votre style.',
+    'why_title_b' => 'Votre barbier.',
+    'why_title_c' => 'Votre temps.',
+    'why_sub' => 'Trouvez des barbiers de confiance, consultez les disponibilités et réservez votre prochain rendez-vous en quelques clics.',
+
+    // Homepage features
+    'feat_1_title' => 'Des barbiers près de chez vous',
+    'feat_1_text' => 'Découvrez les salons près de chez vous ou recherchez une ville précise.',
+    'feat_2_title' => 'Disponibilités en direct',
+    'feat_2_text' => 'Consultez immédiatement les créneaux libres et choisissez celui qui vous convient.',
+    'feat_3_title' => 'Rappels de rendez-vous',
+    'feat_3_text' => 'Recevez un rappel avant votre rendez-vous pour arriver à l’heure.',
+    'feat_4_title' => 'Pas de file d’attente',
+    'feat_4_text' => 'Réservez à l’avance et évitez les longues attentes.',
+    'feat_5_title' => 'Avis authentiques',
+    'feat_5_text' => 'Lisez les avis d’autres clients avant de faire votre choix.',
+    'feat_6_title' => 'Sur tous vos appareils',
+    'feat_6_text' => 'Réservez depuis votre téléphone, tablette ou ordinateur.',
+
+    // Cities and barbers
+    'cities_title_a' => 'Trouvez un barbier',
+    'cities_title_b' => 'dans votre ville.',
+    'cities_sub' => 'Découvrez des salons de coiffure dans toute la Suisse et trouvez celui qui vous convient.',
+    'explore_barbers' => 'Découvrir les barbiers',
+    'view_shop' => 'Voir le salon',
+    'near_you' => 'Près de chez vous',
+    'region_sub' => 'Découvrez les salons de votre région et réservez votre prochain rendez-vous.',
+
+    // Homepage FAQ
+    'faq' => 'FAQ',
+    'faq_title_a' => 'Des questions ?',
+    'faq_title_b' => 'Nous avons les réponses.',
+    'faq_sub' => 'Tout ce que vous devez savoir pour trouver un barbier et réserver un rendez-vous.',
+    'faq_1_q' => 'Comment réserver un rendez-vous ?',
+    'faq_1_a' => 'Recherchez un barbier ou une ville, choisissez un service et un créneau disponible, puis confirmez. Aucun appel n’est nécessaire.',
+    'faq_2_q' => 'Dois-je créer un compte ?',
+    'faq_2_a' => 'Vous n’avez pas besoin de compte pour réserver. Choisissez simplement votre barbier, le service et un horaire disponible.',
+    'faq_3_q' => 'Puis-je choisir mon barbier préféré ?',
+    'faq_3_a' => 'Oui. Parcourez les salons et choisissez le barbier et le service qui vous conviennent.',
+    'faq_4_q' => 'Puis-je réserver en ligne ?',
+    'faq_4_a' => 'Oui. Consultez les créneaux disponibles et réservez en ligne au moment qui vous convient.',
+
+    // Homepage call to action
+    'contact_us' => 'Contactez-nous',
+    'cta_title' => 'Prêt pour une nouvelle coupe ?',
+    'cta_text' => 'Trouvez votre barbier, choisissez un horaire et réservez votre prochain rendez-vous en ligne.',
+
+    // Homepage service ticker
+    'ticker' => 'Coupe de cheveux,Taille de barbe,Rasage à la serviette chaude,Dégradé,Coupe enfant,Coiffage',
 
 ];

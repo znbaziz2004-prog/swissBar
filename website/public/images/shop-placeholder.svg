@@ -1,26 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice">
-  <rect width="400" height="300" fill="#ead9b4"/>
+  <rect width="400" height="300" fill="#EBDFC9"/>
   <rect x="0" y="236" width="400" height="64" fill="#2b2822"/>
-  <rect x="70" y="50" width="260" height="190" fill="#111"/>
+  <rect x="70" y="50" width="260" height="190" fill="#17130F"/>
   <!-- sign -->
-  <rect x="96" y="62" width="208" height="38" rx="6" fill="#f5b800"/>
-  <text x="200" y="89" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="25" font-weight="700" letter-spacing="6" fill="#111">BARBER</text>
+  <rect x="96" y="62" width="208" height="38" rx="6" fill="#8e2e3a"/>
+  <text x="200" y="89" text-anchor="middle" font-family="Georgia, 'Times New Roman', serif" font-size="25" font-weight="700" letter-spacing="6" fill="#F6F1E7">BARBER</text>
   <!-- awning -->
   <path d="M60 108h280l12 34H48z" fill="#f3ebdc"/>
-  <g fill="#111"><path d="M88 108h26l-4 34H80z"/><path d="M140 108h26l-2 34h-26z"/><path d="M192 108h26v34h-26z"/><path d="M244 108h26l2 34h-26z"/><path d="M296 108h26l8 34h-26z"/></g>
-  <path d="M48 142h304c0 10-12 12-24 12s-24-2-26-12c-2 10-12 12-24 12s-24-2-26-12c-2 10-12 12-24 12s-24-2-26-12c-2 10-12 12-24 12s-24-2-26-12c-2 10-12 12-24 12S48 152 48 142z" fill="#f5b800"/>
+  <g fill="#17130F"><path d="M88 108h26l-4 34H80z"/><path d="M140 108h26l-2 34h-26z"/><path d="M192 108h26v34h-26z"/><path d="M244 108h26l2 34h-26z"/><path d="M296 108h26l8 34h-26z"/></g>
+  <path d="M48 142h304c0 10-12 12-24 12s-24-2-26-12c-2 10-12 12-24 12s-24-2-26-12c-2 10-12 12-24 12s-24-2-26-12c-2 10-12 12-24 12s-24-2-26-12c-2 10-12 12-24 12S48 152 48 142z" fill="#8e2e3a"/>
   <!-- window -->
   <rect x="96" y="164" width="130" height="72" rx="6" fill="#f7f1e3"/>
   <path d="M110 164l40 72M150 164l40 72" stroke="#fff" stroke-width="10" opacity=".7"/>
-  <rect x="136" y="196" width="26" height="30" rx="8" fill="#111"/><rect x="142" y="186" width="14" height="14" rx="6" fill="#111"/><rect x="132" y="224" width="34" height="6" rx="3" fill="#f5b800"/>
+  <rect x="136" y="196" width="26" height="30" rx="8" fill="#17130F"/><rect x="142" y="186" width="14" height="14" rx="6" fill="#17130F"/><rect x="132" y="224" width="34" height="6" rx="3" fill="#8e2e3a"/>
   <!-- door -->
-  <rect x="246" y="164" width="58" height="72" rx="6" fill="#f5b800"/>
-  <rect x="256" y="176" width="38" height="34" rx="4" fill="#111"/>
-  <circle cx="294" cy="214" r="3.5" fill="#111"/>
+  <rect x="246" y="164" width="58" height="72" rx="6" fill="#8e2e3a"/>
+  <rect x="256" y="176" width="38" height="34" rx="4" fill="#17130F"/>
+  <circle cx="294" cy="214" r="3.5" fill="#17130F"/>
   <!-- pole -->
-  <rect x="338" y="150" width="22" height="86" rx="8" fill="#fff" stroke="#111" stroke-width="3"/>
-  <path d="M338 166l22 -10M338 186l22 -10M338 206l22 -10M338 226l22 -10" stroke="#f5b800" stroke-width="7"/>
-  <rect x="334" y="144" width="30" height="8" rx="4" fill="#111"/><rect x="334" y="234" width="30" height="8" rx="4" fill="#111"/>
+  <rect x="338" y="150" width="22" height="86" rx="8" fill="#fff" stroke="#17130F" stroke-width="3"/>
+  <path d="M338 166l22 -10M338 186l22 -10M338 206l22 -10M338 226l22 -10" stroke="#8e2e3a" stroke-width="7"/>
+  <rect x="334" y="144" width="30" height="8" rx="4" fill="#17130F"/><rect x="334" y="234" width="30" height="8" rx="4" fill="#17130F"/>
   <!-- scissors icon on door-top -->
-  <g transform="translate(22 196)" fill="none" stroke="#111" stroke-width="3" stroke-linecap="round"><circle cx="6" cy="34" r="6"/><circle cx="26" cy="34" r="6"/><path d="M10 29 28 4M22 29 4 4"/></g>
+  <g transform="translate(22 196)" fill="none" stroke="#17130F" stroke-width="3" stroke-linecap="round"><circle cx="6" cy="34" r="6"/><circle cx="26" cy="34" r="6"/><path d="M10 29 28 4M22 29 4 4"/></g>
 </svg>

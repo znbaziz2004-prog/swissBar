@@ -2,6 +2,12 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
+const WEBSITE_URL = (
+  import.meta.env.VITE_WEBSITE_URL ||
+  "http://127.0.0.1:8000"
+).replace(/\/+$/, "");
+
+
 function Appointments() {
   const navigate = useNavigate();
 
@@ -149,11 +155,12 @@ function Appointments() {
             <span>My Appointments</span>
           </button>
 
-          <button
+       <button
   className="nav-item"
-onClick={() => {
-  window.location.href = `${import.meta.env.VITE_WEBSITE_URL}/search`;
-}}
+  type="button"
+  onClick={() => {
+    window.location.href = `${WEBSITE_URL}/search`;
+  }}
 >
   <span className="nav-icon">＋</span>
   <span>Book Appointment</span>
@@ -286,10 +293,11 @@ onClick={() => {
                 Book your first visit with Swiss Barber.
               </p>
 
-            <button
+           <button
   className="primary-small-button"
+  type="button"
   onClick={() => {
-    window.location.href = `${import.meta.env.VITE_WEBSITE_URL}/search`;
+    window.location.href = `${WEBSITE_URL}/search`;
   }}
 >
   Book an appointment →

@@ -9,7 +9,7 @@
         body {
             margin: 0; min-height: 100vh; padding: 20px;
             display: flex; align-items: center; justify-content: center;
-            font-family: "Plus Jakarta Sans", Arial, sans-serif; background: #f3ebdc; color: #111111;
+            font-family: "Plus Jakarta Sans", Arial, sans-serif; background: #F6F1E7; color: #111111;
         }
         .success-card {
             width: 100%; max-width: 560px; padding: 42px 30px;
@@ -19,7 +19,7 @@
         .success-icon {
             width: 72px; height: 72px; margin: 0 auto 20px;
             display: flex; align-items: center; justify-content: center;
-            border-radius: 50%; background: #f3ebdc; color: #c99700;
+            border-radius: 50%; background: #F6F1E7; color: #651b27;
             font-size: 40px; font-weight: bold;
         }
         h1 { margin: 0 0 10px; font-size: 28px; }
@@ -30,19 +30,19 @@
             font-size: 14px; line-height: 1.6; text-align: left;
         }
         .status.pending  { background: #fff7df; color: #775b12; }
-        .status.approved { background: #f3ebdc; color: #6b4e00; }
+        .status.approved { background: #F6F1E7; color: #6b4e00; }
 
         .options { display: flex; flex-direction: column; gap: 14px; text-align: left; }
         .option {
             display: block; padding: 18px 20px; border-radius: 12px;
-            text-decoration: none; border: 1px solid #e3d6bc;
+            text-decoration: none; border: 1px solid #E4DACA;
             transition: .2s;
         }
         .option strong { display: block; font-size: 16px; margin-bottom: 4px; }
         .option span { font-size: 13px; line-height: 1.5; }
 
         .option.primary { background: #111111; border-color: #111111; color: #fff; }
-        .option.primary span { color: #e3d6bc; }
+        .option.primary span { color: #E4DACA; }
         .option.primary:hover { background: #2b2822; }
 
         .option.secondary { background: #fff; color: #111111; }
@@ -53,10 +53,10 @@
             .success-card { padding: 32px 20px; }
             h1 { font-size: 24px; }
         }
-            .success-card { border-top: 6px solid #f5b800; box-shadow: 0 24px 60px rgba(17,17,17,.12); border-radius: 28px; }
+            .success-card { border-top: 6px solid #8e2e3a; box-shadow: 0 24px 60px rgba(17,17,17,.12); border-radius: 28px; }
         .option { border-radius: 16px; }
-        .option.primary:hover { background: #f5b800; border-color:#f5b800; color:#111; }
-        .option.primary:hover span { color:#2b2822; }
+        .option.primary:hover { background: #8e2e3a; border-color:#8e2e3a; color:#fff; }
+        .option.primary:hover span { color:#f4d9dc; }
     </style>
 </head>
 <body>

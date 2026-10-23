@@ -7,7 +7,10 @@ import Badge from '../../components/ui/Badge'
 import Button from '../../components/ui/Button'
 import SearchBar from '../../components/ui/SearchBar'
 import Notice from '../../components/ui/Notice'
-import { getRegistrations } from '../../services/adminService'
+import {
+  getRegistrations,
+  getSubscriptionPayments,
+} from '../../services/adminService'
 import { getErrorMessage } from '../../services/api'
 import { formatDate } from '../../services/format'
 
@@ -26,22 +29,55 @@ export default function Registrations() {
   const [status, setStatus] = useState('all')
   const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    let active = true
-    ;(async () => {
-      try {
-        const data = await getRegistrations()
-        if (active) setRows(data)
-      } catch (err) {
-        if (active) setError(getErrorMessage(err, 'Could not load registrations.'))
-      } finally {
-        if (active) setLoading(false)
+  
+useEffect(() => {
+  let active = true
+
+  ;(async () => {
+    try {
+      const [registrations, payments] = await Promise.all([
+        getRegistrations(),
+        getSubscriptionPayments(),
+      ])
+
+      const paymentList = Array.isArray(payments) ? payments : []
+
+      const updatedRegistrations = registrations.map((registration) => {
+        const matchingPayments = paymentList
+          .filter(
+            (payment) =>
+              Number(payment.subscription_id) ===
+              Number(registration.subscription_id)
+          )
+          .sort((a, b) => Number(b.id || 0) - Number(a.id || 0))
+
+        const payment =
+          matchingPayments.find(
+            (p) => String(p.status || '').toLowerCase() === 'paid'
+          ) || matchingPayments[0]
+
+        return {
+          ...registration,
+          payment_status:
+            payment?.status ?? registration.payment_status ?? 'unpaid',
+        }
+      })
+
+      if (active) setRows(updatedRegistrations)
+    } catch (err) {
+      if (active) {
+        setError(getErrorMessage(err, 'Could not load registrations.'))
       }
-    })()
-    return () => {
-      active = false
+    } finally {
+      if (active) setLoading(false)
     }
-  }, [])
+  })()
+
+  return () => {
+    active = false
+  }
+}, [])
+
 
   const counts = useMemo(() => {
     const c = { all: rows.length, pending: 0, approved: 0, rejected: 0 }
@@ -97,6 +133,18 @@ export default function Registrations() {
       key: 'status',
       header: 'Status',
       render: (r) => <Badge status={r.status} />,
+    },
+    {
+      key: 'payment',
+      header: 'Payment',
+      render: (r) => (
+        <div>
+          <Badge status={String(r.payment_status || 'unpaid').toLowerCase()} />
+          {String(r.payment_status).toLowerCase() === 'paid' && r.plan_name && (
+            <p className="text-[11px] text-[#8d9790] mt-1">{r.plan_name}</p>
+          )}
+        </div>
+      ),
     },
     {
       key: 'created_at',

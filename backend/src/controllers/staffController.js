@@ -549,26 +549,29 @@ const updateStaff = async (req, res) => {
       );
     }
 
-    // Update staff fields
+        // Update staff fields
     await connection.query(
       `
       UPDATE staff
       SET
-        branch_id = COALESCE(?, branch_id),
+        branch_id = ?,
         display_name = COALESCE(?, display_name),
-        bio = COALESCE(?, bio),
+        bio = ?,
         profile_image = COALESCE(?, profile_image)
       WHERE id = ?
       `,
       [
-        branch_id ?? null,
+        branch_id === undefined
+          ? staff.branch_id
+          : branch_id === '' || branch_id === null
+            ? null
+            : Number(branch_id),
         display_name ?? null,
-        bio ?? null,
+        bio === undefined ? staff.bio : bio || null,
         profile_image ?? null,
         staffId,
       ]
     );
-
     await connection.commit();
 
     return res.status(200).json({

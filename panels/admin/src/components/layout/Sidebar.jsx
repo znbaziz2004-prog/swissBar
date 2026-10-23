@@ -14,6 +14,7 @@ import {
   X,
   Sparkles,
   Menu,
+  Mail,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useAdminAuth } from '../../context/AdminAuthContext'
@@ -27,7 +28,12 @@ const menuItems = [
   { label: 'Subscriptions', icon: CreditCard, path: '/admin/subscriptions' },
   { label: 'Payments', icon: ReceiptText, path: '/admin/payments' },
   { label: 'Reports', icon: BarChart3, path: '/admin/reports' },
-  { label: 'Testimonials', icon: Sparkles, path: '/admin/testimonials' }
+  { label: 'Testimonials', icon: Sparkles, path: '/admin/testimonials' },
+  {
+  label: 'Contact Messages',
+  icon: Mail,
+  path: '/admin/contact-messages',
+},
 ]
 
 const bottomItems = [

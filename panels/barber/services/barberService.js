@@ -9,7 +9,18 @@ export const getDashboard = async () => unwrap(await api.get('/dashboard/stats')
 
 /* Appointments */
 export const getAppointments = async (params = {}) => (unwrap(await api.get('/appointments', { params })).appointments || []);
-export const getCalendar = async (date, view = 'week') => (unwrap(await api.get('/appointments/calendar', { params: { date, view } })).appointments || []);
+export const getCalendar = async (date, view = 'week') => {
+  const response = await api.get('/appointments/calendar', {
+    params: { date, view },
+  });
+
+  console.log('CALENDAR API RESPONSE:', response.data);
+
+  const result = unwrap(response);
+  console.log('CALENDAR APPOINTMENTS:', result?.appointments);
+
+  return result?.appointments || [];
+};
 export const updateAppointmentStatus = (id, status) => api.patch(`/appointments/${id}/status`, { status });
 
 /* Customers */

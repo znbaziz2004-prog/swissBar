@@ -16,11 +16,24 @@ const getFeaturedShops = async (req, res) => {
         bs.postal_code,
         bs.canton,
         bs.country,
-        bs.currency,
+                bs.currency,
         bs.timezone,
         bs.is_featured,
-        bs.featured_until,
         bs.featured_priority,
+
+        CASE
+          WHEN JSON_EXTRACT(
+            plan.features,
+            '$.featured_badge'
+          ) = true
+          AND bs.is_featured = TRUE
+          AND (
+            bs.featured_until IS NULL
+            OR bs.featured_until >= CURDATE()
+          )
+          THEN TRUE
+          ELSE FALSE
+        END AS featured_badge,
 
         sp.id AS subscription_id,
         sp.status AS subscription_status,
@@ -48,9 +61,18 @@ const getFeaturedShops = async (req, res) => {
           bs.featured_until IS NULL
           OR bs.featured_until >= CURDATE()
         )
-        AND JSON_EXTRACT(plan.features, '$.homepage_featured') = true
+        AND JSON_EXTRACT(
+          plan.features,
+          '$.homepage_featured'
+        ) = true
 
       ORDER BY
+        CASE
+          WHEN bs.featured_priority IS NULL
+            OR bs.featured_priority <= 0
+          THEN 1
+          ELSE 0
+        END ASC,
         bs.featured_priority ASC,
         bs.created_at ASC
       `
@@ -138,10 +160,12 @@ const getPublicShops = async (req, res) => {
         bs.postal_code,
         bs.canton,
         bs.country,
-        bs.latitude,
+                bs.latitude,
         bs.longitude,
         bs.currency,
         bs.timezone,
+        bs.is_featured,
+        bs.featured_priority,
 
         CASE
           WHEN JSON_EXTRACT(

@@ -18,6 +18,8 @@ import SubscriptionPlans from './pages/subscriptions/SubscriptionPlans'
 import Subscriptions from './pages/subscriptions/Subscriptions'
 import SubscriptionPayments from './pages/subscriptions/SubscriptionPayments'
 
+import ContactMessages from './pages/contact/ContactMessages'
+
 import Testimonials from './pages/testimonials/Testimonials'
 
 import Reports from './pages/reports/Reports'
@@ -47,6 +49,8 @@ function App() {
         <Route path="subscription-plans" element={<SubscriptionPlans />} />
         <Route path="subscriptions" element={<Subscriptions />} />
         <Route path="payments" element={<SubscriptionPayments />} />
+
+        <Route path="contact-messages" element={<ContactMessages />} />
 
         <Route path="testimonials" element={<Testimonials />} />
 

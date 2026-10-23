@@ -263,4 +263,67 @@ return [
 'contact_fill_required' => 'Bitte füllen Sie alle Pflichtfelder aus.',
 'contact_success' => 'Ihre Nachricht wurde erfolgreich gesendet.',
 'contact_error' => 'Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut.',
+    // Homepage translations
+    'hero_words' => 'schneiden,trimmen,verblenden,rasieren',
+    'hero_tag' => 'DEIN NÄCHSTER PERFEKTER HAARSCHNITT BEGINNT HIER',
+    'hero_title_a' => 'Finde deinen',
+    'hero_title_b' => 'perfekten Barber.',
+    'popular' => 'Beliebt',
+    'demo_service' => 'Haarschnitt',
+    'demo_tomorrow' => 'Morgen',
+    'demo_book' => 'Termin buchen',
+    'demo_online' => 'Online-Buchung',
+    'demo_confirmed' => 'Buchung bestätigt',
+
+    // Why choose Swiss Barber
+    'why_eyebrow' => 'WARUM SWISS BARBER',
+    'why_title_a' => 'Dein Style.',
+    'why_title_b' => 'Dein Barber.',
+    'why_title_c' => 'Deine Zeit.',
+    'why_sub' => 'Finde vertrauenswürdige Barbiere, prüfe die Verfügbarkeit und buche deinen nächsten Termin mit wenigen Klicks.',
+
+    // Homepage features
+    'feat_1_title' => 'Barbiere in deiner Nähe',
+    'feat_1_text' => 'Entdecke Barbershops in deiner Nähe oder suche gezielt nach einer Stadt.',
+    'feat_2_title' => 'Live-Verfügbarkeit',
+    'feat_2_text' => 'Sieh sofort freie Termine und wähle die passende Zeit.',
+    'feat_3_title' => 'Terminerinnerungen',
+    'feat_3_text' => 'Dank einer Erinnerung vor deinem Termin kommst du pünktlich an.',
+    'feat_4_title' => 'Keine Warteschlange',
+    'feat_4_text' => 'Buche im Voraus und vermeide lange Wartezeiten.',
+    'feat_5_title' => 'Echte Bewertungen',
+    'feat_5_text' => 'Lies ehrliche Bewertungen anderer Kunden, bevor du dich entscheidest.',
+    'feat_6_title' => 'Auf jedem Gerät verfügbar',
+    'feat_6_text' => 'Buche bequem über dein Smartphone, Tablet oder deinen Computer.',
+
+    // Cities and barbers
+    'cities_title_a' => 'Finde einen Barber',
+    'cities_title_b' => 'in deiner Stadt.',
+    'cities_sub' => 'Entdecke Barbershops in der ganzen Schweiz und finde den passenden für dich.',
+    'explore_barbers' => 'Barbiere entdecken',
+    'view_shop' => 'Shop ansehen',
+    'near_you' => 'In deiner Nähe',
+    'region_sub' => 'Entdecke Barbershops in deiner Region und buche deinen nächsten Termin.',
+
+    // Homepage FAQ
+    'faq' => 'FAQ',
+    'faq_title_a' => 'Du hast Fragen?',
+    'faq_title_b' => 'Wir haben Antworten.',
+    'faq_sub' => 'Alles, was du über die Suche nach einem Barber und die Terminbuchung wissen musst.',
+    'faq_1_q' => 'Wie buche ich einen Termin?',
+    'faq_1_a' => 'Suche nach einem Barber oder einer Stadt, wähle eine Dienstleistung und einen freien Termin und bestätige deine Buchung. Ein Anruf ist nicht nötig.',
+    'faq_2_q' => 'Muss ich ein Konto erstellen?',
+    'faq_2_a' => 'Du benötigst kein Konto, um einen Termin zu buchen. Wähle einfach deinen Barber, die Dienstleistung und eine verfügbare Zeit.',
+    'faq_3_q' => 'Kann ich meinen bevorzugten Barber auswählen?',
+    'faq_3_a' => 'Ja. Durchsuche die Barbershops und wähle den Barber und die Dienstleistung, die zu dir passen.',
+    'faq_4_q' => 'Kann ich online einen Termin buchen?',
+    'faq_4_a' => 'Ja. Prüfe freie Termine und buche online, wann immer es dir passt.',
+
+    // Homepage call to action
+    'contact_us' => 'Kontaktiere uns',
+    'cta_title' => 'Bereit für deinen nächsten frischen Schnitt?',
+    'cta_text' => 'Finde deinen Barber, wähle eine passende Zeit und buche deinen nächsten Termin online.',
+
+    // Homepage service ticker
+    'ticker' => 'Haarschnitt,Bart trimmen,Heisse Handtuchrasur,Skin Fade,Kinderhaarschnitt,Styling',
     ];

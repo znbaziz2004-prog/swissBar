@@ -10,6 +10,7 @@ import Notice from '../../components/ui/Notice'
 import {
   approveRegistration,
   getRegistration,
+  getSubscriptionPayments,
   rejectRegistration,
 } from '../../services/adminService'
 import { getErrorMessage } from '../../services/api'
@@ -24,6 +25,27 @@ function Field({ label, value }) {
   )
 }
 
+function formatMoney(amount, currency) {
+  if (amount === null || amount === undefined || amount === '') return ''
+  const value = Number(amount)
+  if (!Number.isFinite(value)) return String(amount)
+  try {
+    return new Intl.NumberFormat('en-CH', {
+      style: 'currency',
+      currency: String(currency || 'CHF').toUpperCase(),
+    }).format(value)
+  } catch {
+    return `${currency || 'CHF'} ${value.toFixed(2)}`
+  }
+}
+
+function formatDay(value) {
+  if (!value) return ''
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return String(value)
+  return date.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+}
+
 export default function RegistrationDetails() {
   const { id } = useParams()
   const [item, setItem] = useState(null)
@@ -34,15 +56,67 @@ export default function RegistrationDetails() {
   const [rejectOpen, setRejectOpen] = useState(false)
   const [reason, setReason] = useState('')
 
-  const load = useCallback(async () => {
-    try {
-      setItem(await getRegistration(id))
-    } catch (err) {
-      setError(getErrorMessage(err, 'Could not load this registration.'))
-    } finally {
-      setLoading(false)
-    }
-  }, [id])
+
+const load = useCallback(async () => {
+  try {
+    setError('')
+
+    const [registration, payments] = await Promise.all([
+      getRegistration(id),
+      getSubscriptionPayments(),
+    ])
+
+    const subscriptionId = registration?.subscription_id
+
+    const matchingPayments = (Array.isArray(payments) ? payments : [])
+      .filter(
+        (payment) =>
+          Number(payment.subscription_id) === Number(subscriptionId)
+      )
+      .sort((a, b) => Number(b.id || 0) - Number(a.id || 0))
+
+    const payment =
+      matchingPayments.find(
+        (p) => String(p.status || '').toLowerCase() === 'paid'
+      ) || matchingPayments[0]
+
+    setItem({
+      ...registration,
+
+      payment_status:
+        payment?.status ?? registration?.payment_status ?? 'unpaid',
+
+      payment_amount:
+        payment?.amount ?? registration?.payment_amount ?? null,
+
+      payment_currency:
+        payment?.currency ?? registration?.payment_currency ?? null,
+
+      payment_method:
+        payment?.payment_method ??
+        payment?.method ??
+        registration?.payment_method ??
+        null,
+
+      payment_paid_at:
+        payment?.paid_at ??
+        registration?.payment_paid_at ??
+        null,
+
+      payment_reference:
+        payment?.reference ??
+        payment?.transaction_reference ??
+        payment?.transaction_id ??
+        registration?.payment_reference ??
+        null,
+    })
+  } catch (err) {
+    setError(getErrorMessage(err, 'Could not load this registration.'))
+  } finally {
+    setLoading(false)
+  }
+}, [id])
+
 
   useEffect(() => {
     load()
@@ -92,9 +166,20 @@ export default function RegistrationDetails() {
   }
 
   const isPending = String(item.status).toLowerCase() === 'pending'
+  console.log('Registration payment data:', item)
 
-  console.log('REGISTRATION ITEM:', item)
-console.log('REGISTRATION STATUS:', item.status)
+  // Payment details (returned by the backend with the registration)
+ const paymentStatus = String(
+  item.payment_status ?? item.paymentStatus ?? ''
+).trim().toLowerCase()
+
+
+  const isPaid = paymentStatus === 'paid'
+  const amountText = formatMoney(item.payment_amount, item.payment_currency)
+  const interval = String(item.billing_interval || 'monthly').toLowerCase()
+  const periodLabel = ['year', 'yearly', 'annual', 'annually'].includes(interval) ? '1 year' : '1 month'
+  const periodStart = formatDay(item.subscription_start_date)
+  const periodEnd = formatDay(item.subscription_end_date)
 
   return (
     <div className="space-y-6 pb-10">
@@ -145,6 +230,34 @@ console.log('REGISTRATION STATUS:', item.status)
             <Field label="Email" value={item.owner_email} />
             <Field label="Phone" value={item.owner_phone} />
             <Field label="Selected plan" value={item.plan_name} />
+          </div>
+        </section>
+
+        <section className="soft-card p-6 xl:col-span-2">
+          <div className="flex items-center justify-between mb-5">
+            <h2 className="font-display text-xl font-bold">Payment</h2>
+            <Badge status={isPaid ? 'paid' : paymentStatus || 'unpaid'} />
+          </div>
+
+          <div
+            className={`rounded-[14px] px-4 py-3 mb-5 text-sm font-medium ${
+              isPaid ? 'bg-[#e6f3ec] text-[#1f5c43]' : 'bg-[#fdf3e1] text-[#8a5a08]'
+            }`}
+          >
+            {isPaid
+              ? `Paid for ${periodLabel}${item.plan_name ? ` (${item.plan_name} plan)` : ''}${
+                  amountText ? ` - ${amountText}` : ''
+                }.`
+              : 'No payment received for this registration yet.'}
+          </div>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            <Field label="Amount paid" value={isPaid ? amountText : ''} />
+            <Field label="Payment method" value={item.payment_method ? String(item.payment_method).replace(/^./, (c) => c.toUpperCase()) : ''} />
+            <Field label="Paid on" value={item.payment_paid_at ? formatDateTime(item.payment_paid_at) : ''} />
+            <Field label="Subscription status" value={item.subscription_status ? String(item.subscription_status).replace(/^./, (c) => c.toUpperCase()) : ''} />
+            <Field label="Period" value={periodStart && periodEnd ? `${periodStart} to ${periodEnd}` : periodStart} />
+            <Field label="Transaction reference" value={item.payment_reference} />
           </div>
         </section>
       </div>

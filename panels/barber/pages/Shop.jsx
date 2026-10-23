@@ -11,6 +11,7 @@ import {
   updateShopProfile,
   getBranches,
   createBranch,
+  updateBranch,
   updateBranchStatus,
 } from '../services/barberService';
 
@@ -58,27 +59,71 @@ export default function Shop() {
 
   const [shopForm, setShopForm] = useState({});
   const [branchForm, setBranchForm] = useState(EMPTY_BRANCH);
+
   const [showBranchForm, setShowBranchForm] = useState(false);
+  const [editingBranchId, setEditingBranchId] = useState(null);
+
   const [savingShop, setSavingShop] = useState(false);
   const [savingBranch, setSavingBranch] = useState(false);
   const [updatingBranchId, setUpdatingBranchId] = useState(null);
 
-  const editable = canManage(user.role);
+  const editable = canManage(user?.role);
 
   useEffect(() => {
-    if (shop) setShopForm(shop);
+    if (shop) {
+      setShopForm(shop);
+    }
   }, [shop]);
 
   const updateShopField = (key, value) => {
-    setShopForm((prev) => ({ ...prev, [key]: value }));
+    setShopForm((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
   };
 
   const updateBranchField = (key, value) => {
-    setBranchForm((prev) => ({ ...prev, [key]: value }));
+    setBranchForm((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+  };
+
+  const resetBranchForm = () => {
+    setBranchForm({ ...EMPTY_BRANCH });
+    setEditingBranchId(null);
+    setShowBranchForm(false);
+  };
+
+  const handleAddBranch = () => {
+    setBranchForm({ ...EMPTY_BRANCH });
+    setEditingBranchId(null);
+    setShowBranchForm((prev) => !prev);
+  };
+
+  const handleEditBranch = (branch) => {
+    setBranchForm({
+      name: branch.name || '',
+      phone: branch.phone || '',
+      email: branch.email || '',
+      address: branch.address || '',
+      city: branch.city || '',
+      postalCode: branch.postal_code ?? branch.postalCode ?? '',
+      canton: branch.canton || '',
+    });
+
+    setEditingBranchId(branch.id);
+    setShowBranchForm(true);
+
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
   };
 
   const saveShop = async (e) => {
     e.preventDefault();
+
     setSavingShop(true);
 
     try {
@@ -95,7 +140,7 @@ export default function Shop() {
       });
 
       toast('Shop profile saved successfully');
-      reloadShop();
+      await reloadShop();
     } catch (error) {
       toast(errMsg(error));
     } finally {
@@ -106,35 +151,46 @@ export default function Shop() {
   const saveBranch = async (e) => {
     e.preventDefault();
 
-    if (!shop?.id) {
+    if (!shop?.id && !editingBranchId) {
       toast('Shop ID not found. Please reload the page.');
       return;
     }
 
-    if (!branchForm.name.trim()) {
+    const branchName = branchForm.name.trim();
+
+    if (!branchName) {
       toast('Please enter a branch name');
       return;
     }
 
+    const payload = {
+      name: branchName,
+      phone: branchForm.phone.trim() || null,
+      email: branchForm.email.trim() || null,
+      address: branchForm.address.trim() || null,
+      city: branchForm.city.trim() || null,
+      postalCode: branchForm.postalCode.trim() || null,
+      canton: branchForm.canton.trim() || null,
+    };
+
     setSavingBranch(true);
 
     try {
-      await createBranch({
-        shopId: shop.id,
-        name: branchForm.name.trim(),
-        phone: branchForm.phone || null,
-        email: branchForm.email || null,
-        address: branchForm.address || null,
-        city: branchForm.city || null,
-        postalCode: branchForm.postalCode || null,
-        canton: branchForm.canton || null,
-      });
+      if (editingBranchId) {
+        await updateBranch(editingBranchId, payload);
+        toast('Branch updated successfully');
+      } else {
+        await createBranch({
+          ...payload,
+          shopId: shop.id,
+        });
+        toast('Branch created successfully');
+      }
 
-      toast('Branch created successfully');
-      setBranchForm(EMPTY_BRANCH);
-      setShowBranchForm(false);
-      reloadBranches();
+      resetBranchForm();
+      await reloadBranches();
     } catch (error) {
+      console.error('Save branch error:', error);
       toast(errMsg(error));
     } finally {
       setSavingBranch(false);
@@ -142,14 +198,15 @@ export default function Shop() {
   };
 
   const toggleBranch = async (branch) => {
-    const status = branch.status === 'active' ? 'inactive' : 'active';
+    const status =
+      branch.status === 'active' ? 'inactive' : 'active';
 
     setUpdatingBranchId(branch.id);
 
     try {
       await updateBranchStatus(branch.id, status);
       toast(`Branch ${status} successfully`);
-      reloadBranches();
+      await reloadBranches();
     } catch (error) {
       toast(errMsg(error));
     } finally {
@@ -165,19 +222,34 @@ export default function Shop() {
     <div className="shop-page">
       <div className="shop-heading">
         <div>
-          <span className="shop-eyebrow">BUSINESS MANAGEMENT</span>
-          <h2>Shop & Branches</h2>
-          <p>Manage your shop information and locations in one place.</p>
+          <span className="shop-eyebrow">
+            BUSINESS MANAGEMENT
+          </span>
+
+          <h2>Shop &amp; Branches</h2>
+
+          <p>
+            Manage your shop information and locations in one place.
+          </p>
         </div>
 
-        {shop && <span className="shop-status"><Pill s={shop.status} /></span>}
+        {shop && (
+          <span className="shop-status">
+            <Pill s={shop.status} />
+          </span>
+        )}
       </div>
 
       {/* Shop profile */}
-      <State loading={shopLoading} error={shopError} onRetry={reloadShop}>
+      <State
+        loading={shopLoading}
+        error={shopError}
+        onRetry={reloadShop}
+      >
         <section className="shop-panel">
           <div className="shop-panel-heading">
             <div className="shop-panel-icon">⌂</div>
+
             <div>
               <h3>Shop profile</h3>
               <p>Keep your business details up to date.</p>
@@ -189,18 +261,22 @@ export default function Shop() {
               {SHOP_FIELDS.map(([key, label, placeholder]) => (
                 <label className="shop-field" key={key}>
                   <span>{label}</span>
+
                   <input
                     type={key === 'email' ? 'email' : 'text'}
                     disabled={!editable}
                     placeholder={placeholder}
                     value={shopForm[key] ?? ''}
-                    onChange={(e) => updateShopField(key, e.target.value)}
+                    onChange={(e) =>
+                      updateShopField(key, e.target.value)
+                    }
                   />
                 </label>
               ))}
 
               <label className="shop-field shop-field-wide">
                 <span>About your shop</span>
+
                 <textarea
                   rows={4}
                   disabled={!editable}
@@ -221,8 +297,13 @@ export default function Shop() {
               </span>
 
               {editable && (
-                <button className="shop-primary-btn" disabled={savingShop}>
+                <button
+                  className="shop-primary-btn"
+                  type="submit"
+                  disabled={savingShop}
+                >
                   {savingShop ? 'Saving...' : 'Save changes'}
+
                   {!savingShop && <span>↗</span>}
                 </button>
               )}
@@ -235,26 +316,37 @@ export default function Shop() {
       <section className="branches-section">
         <div className="branches-heading">
           <div>
-            <span className="shop-eyebrow">YOUR LOCATIONS</span>
+            <span className="shop-eyebrow">
+              YOUR LOCATIONS
+            </span>
+
             <h3>Branches</h3>
-            <p>Manage the different locations of your business.</p>
+
+            <p>
+              Manage the different locations of your business.
+            </p>
           </div>
 
           {editable && (
             <button
               className="shop-primary-btn"
               type="button"
-              onClick={() => setShowBranchForm((prev) => !prev)}
+              onClick={handleAddBranch}
             >
-              <span className="shop-plus">{showBranchForm ? '−' : '+'}</span>
+              <span className="shop-plus">
+                {showBranchForm ? '−' : '+'}
+              </span>
+
               {showBranchForm ? 'Close form' : 'Add branch'}
             </button>
           )}
         </div>
 
+        {/* Branch statistics */}
         <div className="branch-stats">
           <div className="branch-stat-card">
             <span className="branch-stat-icon">⌖</span>
+
             <div>
               <span>Total locations</span>
               <strong>{(branches || []).length}</strong>
@@ -262,7 +354,10 @@ export default function Shop() {
           </div>
 
           <div className="branch-stat-card">
-            <span className="branch-stat-icon branch-stat-green">✓</span>
+            <span className="branch-stat-icon branch-stat-green">
+              ✓
+            </span>
+
             <div>
               <span>Active branches</span>
               <strong>{activeBranches}</strong>
@@ -270,72 +365,103 @@ export default function Shop() {
           </div>
         </div>
 
-        {/* Add branch form */}
+        {/* Add / Edit branch form */}
         {showBranchForm && editable && (
-          <form className="shop-panel branch-create-form" onSubmit={saveBranch}>
+          <form
+            className="shop-panel branch-create-form"
+            onSubmit={saveBranch}
+          >
             <div className="shop-panel-heading">
-              <div className="shop-panel-icon">+</div>
+              <div className="shop-panel-icon">
+                {editingBranchId ? '✎' : '+'}
+              </div>
+
               <div>
-                <h3>Add a new branch</h3>
-                <p>Enter the details for your new location.</p>
+                <h3>
+                  {editingBranchId
+                    ? 'Edit branch details'
+                    : 'Add a new branch'}
+                </h3>
+
+                <p>
+                  {editingBranchId
+                    ? 'Update the information for this location.'
+                    : 'Enter the details for your new location.'}
+                </p>
               </div>
             </div>
 
             <div className="shop-form-grid">
               <label className="shop-field">
                 <span>Branch name *</span>
+
                 <input
                   required
                   name="name"
                   placeholder="e.g. Zurich Central"
                   value={branchForm.name}
-                  onChange={(e) => updateBranchField('name', e.target.value)}
+                  onChange={(e) =>
+                    updateBranchField('name', e.target.value)
+                  }
                 />
               </label>
 
               <label className="shop-field">
                 <span>Phone number</span>
+
                 <input
                   name="phone"
                   placeholder="+41 ..."
                   value={branchForm.phone}
-                  onChange={(e) => updateBranchField('phone', e.target.value)}
+                  onChange={(e) =>
+                    updateBranchField('phone', e.target.value)
+                  }
                 />
               </label>
 
               <label className="shop-field">
                 <span>Email address</span>
+
                 <input
                   type="email"
                   name="email"
                   placeholder="branch@yourshop.ch"
                   value={branchForm.email}
-                  onChange={(e) => updateBranchField('email', e.target.value)}
+                  onChange={(e) =>
+                    updateBranchField('email', e.target.value)
+                  }
                 />
               </label>
 
               <label className="shop-field">
                 <span>Street address</span>
+
                 <input
                   name="address"
                   placeholder="Street and building number"
                   value={branchForm.address}
-                  onChange={(e) => updateBranchField('address', e.target.value)}
+                  onChange={(e) =>
+                    updateBranchField('address', e.target.value)
+                  }
                 />
               </label>
 
               <label className="shop-field">
                 <span>City</span>
+
                 <input
                   name="city"
                   placeholder="Zurich"
                   value={branchForm.city}
-                  onChange={(e) => updateBranchField('city', e.target.value)}
+                  onChange={(e) =>
+                    updateBranchField('city', e.target.value)
+                  }
                 />
               </label>
 
               <label className="shop-field">
                 <span>Postal code</span>
+
                 <input
                   name="postalCode"
                   placeholder="8001"
@@ -348,11 +474,14 @@ export default function Shop() {
 
               <label className="shop-field">
                 <span>Canton</span>
+
                 <input
                   name="canton"
                   placeholder="Zurich"
                   value={branchForm.canton}
-                  onChange={(e) => updateBranchField('canton', e.target.value)}
+                  onChange={(e) =>
+                    updateBranchField('canton', e.target.value)
+                  }
                 />
               </label>
             </div>
@@ -362,9 +491,39 @@ export default function Shop() {
                 Fields marked * are required.
               </span>
 
-              <button className="shop-primary-btn" disabled={savingBranch}>
-                {savingBranch ? 'Creating branch...' : 'Create branch'}
-              </button>
+              <div
+                style={{
+                  display: 'flex',
+                  gap: '10px',
+                  flexWrap: 'wrap',
+                }}
+              >
+                <button
+                  type="button"
+                  className="shop-primary-btn"
+                  disabled={savingBranch}
+                  onClick={resetBranchForm}
+                  style={{
+                    background: '#ffffff',
+                    color: '#174d3a',
+                    borderColor: '#dce5dc',
+                  }}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  className="shop-primary-btn"
+                  type="submit"
+                  disabled={savingBranch}
+                >
+                  {savingBranch
+                    ? 'Saving...'
+                    : editingBranchId
+                      ? 'Save changes'
+                      : 'Create branch'}
+                </button>
+              </div>
             </div>
           </form>
         )}
@@ -378,12 +537,20 @@ export default function Shop() {
           {(branches || []).length > 0 ? (
             <div className="branch-grid">
               {(branches || []).map((branch) => (
-                <article className="branch-card" key={branch.id}>
+                <article
+                  className="branch-card"
+                  key={branch.id}
+                >
                   <div className="branch-card-top">
-                    <div className="branch-location-icon">⌖</div>
+                    <div className="branch-location-icon">
+                      ⌖
+                    </div>
+
                     <span
                       className={`branch-badge ${
-                        branch.status === 'active' ? 'is-active' : 'is-inactive'
+                        branch.status === 'active'
+                          ? 'is-active'
+                          : 'is-inactive'
                       }`}
                     >
                       <span />
@@ -393,25 +560,44 @@ export default function Shop() {
 
                   <div className="branch-card-title">
                     <h4>{branch.name}</h4>
+
                     <p>
-                      {[branch.city, branch.canton].filter(Boolean).join(', ') ||
+                      {[
+                        branch.city,
+                        branch.canton,
+                      ]
+                        .filter(Boolean)
+                        .join(', ') ||
                         'Location details not provided'}
                     </p>
                   </div>
 
                   <div className="branch-card-details">
                     <div>
-                      <span className="branch-detail-icon">⌂</span>
-                      <span>{branch.address || 'No address added'}</span>
+                      <span className="branch-detail-icon">
+                        ⌂
+                      </span>
+
+                      <span>
+                        {branch.address || 'No address added'}
+                      </span>
                     </div>
 
                     <div>
-                      <span className="branch-detail-icon">☎</span>
-                      <span>{branch.phone || 'No phone added'}</span>
+                      <span className="branch-detail-icon">
+                        ☎
+                      </span>
+
+                      <span>
+                        {branch.phone || 'No phone added'}
+                      </span>
                     </div>
 
                     <div>
-                      <span className="branch-detail-icon">@</span>
+                      <span className="branch-detail-icon">
+                        @
+                      </span>
+
                       <span className="branch-email">
                         {branch.email || 'No email added'}
                       </span>
@@ -421,17 +607,44 @@ export default function Shop() {
                   {editable && (
                     <div className="branch-card-footer">
                       <span>Branch ID: {branch.id}</span>
-                      <button
-                        type="button"
-                        disabled={updatingBranchId === branch.id}
-                        onClick={() => toggleBranch(branch)}
+
+                      <div
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          flexWrap: 'wrap',
+                          justifyContent: 'flex-end',
+                        }}
                       >
-                        {updatingBranchId === branch.id
-                          ? 'Updating...'
-                          : branch.status === 'active'
-                            ? 'Deactivate'
-                            : 'Activate'}
-                      </button>
+                        <button
+                          type="button"
+                          disabled={
+                            savingBranch ||
+                            updatingBranchId === branch.id
+                          }
+                          onClick={() =>
+                            handleEditBranch(branch)
+                          }
+                        >
+                          Edit
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={
+                            savingBranch ||
+                            updatingBranchId === branch.id
+                          }
+                          onClick={() => toggleBranch(branch)}
+                        >
+                          {updatingBranchId === branch.id
+                            ? 'Updating...'
+                            : branch.status === 'active'
+                              ? 'Deactivate'
+                              : 'Activate'}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </article>
@@ -442,15 +655,23 @@ export default function Shop() {
             !branchesError && (
               <div className="branch-empty">
                 <div className="branch-empty-icon">⌖</div>
+
                 <h4>No branches yet</h4>
+
                 <p>
-                  Add your first location to manage multiple shop branches.
+                  Add your first location to manage multiple shop
+                  branches.
                 </p>
+
                 {editable && (
                   <button
                     className="shop-primary-btn"
                     type="button"
-                    onClick={() => setShowBranchForm(true)}
+                    onClick={() => {
+                      setBranchForm({ ...EMPTY_BRANCH });
+                      setEditingBranchId(null);
+                      setShowBranchForm(true);
+                    }}
                   >
                     + Add your first branch
                   </button>

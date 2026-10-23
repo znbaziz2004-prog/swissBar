@@ -268,19 +268,19 @@ const registerBarber = async (req, res) => {
 
     await connection.commit();
 
-    
-const registrationToken = jwt.sign(
-  {
-    id: userId,
-    email,
-    role: "owner",
-    purpose: "registration_payment",
-    shopId,
-    subscriptionId,
-  },
-  process.env.JWT_SECRET,
-  { expiresIn: "30m" }
-);
+
+    const registrationToken = jwt.sign(
+      {
+        id: userId,
+        email,
+        role: "owner",
+        purpose: "registration_payment",
+        shopId,
+        subscriptionId,
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: "30m" }
+    );
 
 
     // =====================================================
@@ -301,7 +301,7 @@ const registrationToken = jwt.sign(
           phone,
           role: "owner",
           status: "inactive"
-         
+
         },
 
         shop: {
@@ -351,6 +351,59 @@ const registrationToken = jwt.sign(
     connection.release();
   }
 };
+
+
+// =====================================================
+// SHARED SQL: latest subscription + latest PAID payment
+// =====================================================
+//
+// - Only the newest subscription of a shop is joined, so a shop with several
+//   subscriptions no longer appears twice in the registrations list.
+// - Only the newest payment with status 'paid' is joined. If there is none,
+//   payment_status is returned as 'unpaid'.
+// - The paid period starts at the subscription start date (or the payment date)
+//   and lasts one billing interval (1 month, or 1 year for yearly plans).
+
+const PAYMENT_JOINS = `
+      LEFT JOIN shop_subscriptions ss
+        ON ss.id = (
+          SELECT MAX(s2.id)
+          FROM shop_subscriptions s2
+          WHERE s2.shop_id = br.shop_id
+        )
+
+      LEFT JOIN subscription_plans sp
+        ON sp.id = ss.plan_id
+
+      LEFT JOIN subscription_payments pay
+        ON pay.id = (
+          SELECT MAX(p2.id)
+          FROM subscription_payments p2
+          WHERE p2.subscription_id = ss.id
+            AND p2.status = 'paid'
+        )
+`;
+
+const PAYMENT_COLUMNS = `
+        COALESCE(pay.status, 'unpaid') AS payment_status,
+        pay.amount AS payment_amount,
+        pay.currency AS payment_currency,
+        pay.payment_method AS payment_method,
+        pay.paid_at AS payment_paid_at,
+        pay.transaction_reference AS payment_reference,
+
+        ss.status AS subscription_status,
+        COALESCE(ss.start_date, DATE(pay.paid_at)) AS subscription_start_date,
+        CASE
+          WHEN pay.id IS NULL THEN NULL
+          WHEN LOWER(COALESCE(sp.billing_interval, 'monthly'))
+               IN ('year', 'yearly', 'annual', 'annually')
+            THEN DATE_ADD(COALESCE(ss.start_date, DATE(pay.paid_at)), INTERVAL 1 YEAR)
+          ELSE DATE_ADD(COALESCE(ss.start_date, DATE(pay.paid_at)), INTERVAL 1 MONTH)
+        END AS subscription_end_date
+`;
+
+
 // =====================================================
 // GET ALL BARBER REGISTRATIONS — SUPER ADMIN
 // =====================================================
@@ -375,6 +428,8 @@ const getRegistrations = async (req, res) => {
 
         sp.name AS plan_name,
 
+        ${PAYMENT_COLUMNS},
+
         br.created_at,
         br.updated_at
 
@@ -386,11 +441,7 @@ const getRegistrations = async (req, res) => {
       INNER JOIN users u
         ON u.id = br.user_id
 
-      LEFT JOIN shop_subscriptions ss
-        ON ss.shop_id = br.shop_id
-
-      LEFT JOIN subscription_plans sp
-        ON sp.id = ss.plan_id
+      ${PAYMENT_JOINS}
 
       ORDER BY br.created_at DESC
     `);
@@ -454,7 +505,8 @@ const getRegistration = async (req, res) => {
         sp.billing_interval,
 
         ss.id AS subscription_id,
-        ss.status AS subscription_status,
+
+        ${PAYMENT_COLUMNS},
 
         br.created_at,
         br.updated_at
@@ -467,11 +519,7 @@ const getRegistration = async (req, res) => {
       INNER JOIN users u
         ON u.id = br.user_id
 
-      LEFT JOIN shop_subscriptions ss
-        ON ss.shop_id = br.shop_id
-
-      LEFT JOIN subscription_plans sp
-        ON sp.id = ss.plan_id
+      ${PAYMENT_JOINS}
 
       WHERE br.id = ?
 
@@ -487,7 +535,43 @@ const getRegistration = async (req, res) => {
       });
     }
 
-    const registration = rows[0];
+   const registration = rows[0];
+
+const [paymentRows] = await pool.query(
+  `
+  SELECT
+    p.status AS payment_status,
+    p.amount AS payment_amount,
+    p.currency AS payment_currency,
+    p.payment_method AS payment_method,
+    p.paid_at AS payment_paid_at,
+    p.transaction_reference AS payment_reference
+  FROM subscription_payments p
+  WHERE p.subscription_id = ?
+  ORDER BY
+    CASE
+      WHEN LOWER(p.status) = 'paid' THEN 0
+      ELSE 1
+    END,
+    p.id DESC
+  LIMIT 1
+  `,
+  [registration.subscription_id]
+);
+const payment = paymentRows[0] || {};
+
+registration.payment_status = payment.payment_status || "unpaid";
+registration.payment_amount = payment.payment_amount ?? null;
+registration.payment_currency = payment.payment_currency ?? null;
+registration.payment_method = payment.payment_method ?? null;
+registration.payment_paid_at = payment.payment_paid_at ?? null;
+registration.payment_reference = payment.payment_reference ?? null;
+    console.log("SINGLE REGISTRATION SQL RESULT:", {
+  payment_status: registration.payment_status,
+  payment_amount: registration.payment_amount,
+  payment_reference: registration.payment_reference,
+  subscription_id: registration.subscription_id,
+});
 
     // Convert JSON fields when MySQL returns them as strings
     if (typeof registration.registration_data === "string") {

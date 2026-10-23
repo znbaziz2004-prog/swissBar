@@ -141,6 +141,24 @@ document.addEventListener('DOMContentLoaded', async function () {
                 shop.review_count ??
                 0;
 
+              
+const priority = Number(shop.featured_priority);
+
+const showBadge =
+    Number(shop.is_featured) === 1 &&
+    priority > 0;
+
+let badges = '';
+
+if (showBadge) {
+    badges = `
+        <span class="kk-shop-badge kk-badge-priority">
+            #${priority} Featured
+        </span>
+    `;
+}
+
+
             return `
                 <article
                     class="kk-shop-card"
@@ -149,12 +167,16 @@ document.addEventListener('DOMContentLoaded', async function () {
                 >
 
                     <div class="kk-shop-image">
-                        <img
-                            src="${image}"
-                            alt="${name}"
-                            onerror="this.src='/images/shop-placeholder.svg'"
-                        >
-                    </div>
+    <img
+        src="${image}"
+        alt="${name}"
+        onerror="this.src='/images/shop-placeholder.svg'"
+    >
+
+    <div class="kk-shop-badges">
+        ${badges}
+    </div>
+</div>
 
                     <h3>${name}</h3>
 
